@@ -207,3 +207,10 @@ To properly start working on the UR5e with ROS2 Humble we have to:
         ]
     }"
     ````
+
+## 3. OnRobot 2FG7 gripper control
+
+OnRobot has launched a new driver to control his grippers with ROS2:
+
+- [OnRobot webpage announcement](https://onrobot.com/es/physical-ai/physical-ai-developer-resources?utm_source=email&utm_medium=trigger_based&utm_campaign=physical-ai)
+- [OnRobot-ros2](https://github.com/OnRobot/onrobot-ros2/tree/main)
