@@ -107,7 +107,7 @@ The controller may report that it cannot connect to the real robot. This is expe
 Open terminal 1 in the project directory:
 
 ```bash
-python3 ur5e_motion_server.py
+py -3.12 ur5e_motion_server.py
 ```
 
 Expected evidence:
@@ -121,14 +121,14 @@ Expected evidence:
 Open terminal 2 in the same directory:
 
 ```bash
-python3 motion_client.py --list
-python3 motion_client.py <motion_name>
+py -3.12 motion_client.py --list
+py -3.12 motion_client.py <motion_name>
 ```
 
 For example:
 
 ```bash
-python3 motion_client.py wave
+py -3.12 motion_client.py wave
 ```
 
 A successful test must show all of the following:
@@ -201,7 +201,7 @@ Then start the server on the teacher PC:
 
 ```bash
 cd UR5e_social_robotics/Python_sockets_Robotic_project
-python3 ur5e_motion_server.py
+py -3.12 ur5e_motion_server.py
 ```
 
 If needed, allow inbound TCP port `5000` through the teacher PC firewall only for the private laboratory network.
@@ -210,8 +210,8 @@ On the student computer:
 
 ```bash
 cd UR5e_social_robotics/Python_sockets_Robotic_project
-python3 motion_client.py --list
-python3 motion_client.py <motion_name>
+py -3.12 motion_client.py --list
+py -3.12 motion_client.py <motion_name>
 ```
 
 Confirm that the YAML arrives at the teacher PC, the motion completes in RoboDK there, and the student client receives `OK: sequence executed`.
@@ -254,7 +254,7 @@ Keep only one assignment active. An invalid value makes the server stop with a c
 Restart the server on the teacher PC, then send the request from the student computer:
 
 ```bash
-python3 motion_client.py <motion_name>
+py -3.12 motion_client.py <motion_name>
 ```
 
 The server serialises access, so only one student should send a motion at a time. Stop immediately with the robot emergency stop or protective stop procedure if the trajectory differs from the approved simulation. Do not repeatedly resend a failed motion until the cause has been identified.
@@ -275,7 +275,7 @@ Voice recognition runs on the student computer and selects the same registered m
 Install the optional dependencies:
 
 ```bash
-python3 -m pip install -r requirements_voice.txt
+py -3.12 -m pip install -r requirements_voice.txt
 ```
 
 On Ubuntu, microphone and speech support may also require:
@@ -301,7 +301,7 @@ if any(k in text for k in ["wave", "wave hello", "say hello"]):
 Keep the correct `SERVER_IP` for the stage being tested: `127.0.0.1` at home or the teacher PC's `192.168.1.x5` address in the laboratory. Start the motion server first, then run on the student computer:
 
 ```bash
-python3 voice_motion_client.py
+py -3.12 voice_motion_client.py
 ```
 
 Say the activation word followed by the command, for example:
@@ -327,7 +327,7 @@ The face module is an access gate: it checks a face once and, when authorised, s
 Install the optional dependencies:
 
 ```bash
-python3 -m pip install -r requirements_face.txt
+py -3.12 -m pip install -r requirements_face.txt
 ```
 
 Installation of `dlib` may require operating-system build tools. Use the prepared laboratory environment if local installation fails.
@@ -345,7 +345,7 @@ The repository includes `resources/Pictures/Manel_ref.png`, but the current defa
 With the server running in `simulation_only` mode, execute:
 
 ```bash
-python3 face_voice_motion_client.py
+py -3.12 face_voice_motion_client.py
 ```
 
 Verify the complete chain:

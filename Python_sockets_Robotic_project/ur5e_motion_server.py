@@ -65,6 +65,9 @@ def main():
             try:
                 conn, addr = server_socket.accept()
             except socket.timeout:
+                if not robot.is_robodk_running():
+                    print("\nRoboDK closed. Stopping server...")
+                    break
                 continue
             threading.Thread(
                 target=handle_client,

@@ -1,4 +1,6 @@
 -r requirements_voice.txt
+setuptools<81
 opencv-python
 face-recognition
+face-recognition-models==0.3.0
 dlib

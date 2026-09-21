@@ -160,10 +160,17 @@ class RobotController:
                 raise RuntimeError(f"Motion step failed: {step.get('name', 'unnamed_step')}")
         print("Sequence completed successfully.")
 
+    def is_robodk_running(self):
+        """Return whether the RoboDK instance started by the API is still open."""
+        process = self.rdk.NEW_INSTANCE
+        return process is None or process.poll() is None
+
     def shutdown(self):
         if self.robot_socket:
             self.robot_socket.close()
+            self.robot_socket = None
         try:
-            self.rdk.CloseRoboDK()
+            if self.is_robodk_running():
+                self.rdk.CloseRoboDK()
         except Exception:
             pass
