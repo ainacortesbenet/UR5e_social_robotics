@@ -6,7 +6,12 @@ import socket
 from pathlib import Path
 from typing import Optional
 
-from config import SERVER_IP, SERVER_PORT
+from config import (
+    MOTION_RESPONSE_TIMEOUT,
+    SERVER_CONNECT_TIMEOUT,
+    SERVER_IP,
+    SERVER_PORT,
+)
 from utils.yaml_loader import load_yaml_file
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -60,12 +65,14 @@ class BehaviorManager:
                 yaml_text = f.read()
 
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(5.0)
+            sock.settimeout(SERVER_CONNECT_TIMEOUT)
             sock.connect((self.server_ip, self.server_port))
 
             sock.sendall(yaml_text.encode("utf-8"))
             sock.shutdown(socket.SHUT_WR)
 
+            # The server replies only after RoboDK completes the whole sequence.
+            sock.settimeout(MOTION_RESPONSE_TIMEOUT)
             response = sock.recv(4096).decode("utf-8")
             print(f"[SERVER RESPONSE] {response.strip()}")
 
