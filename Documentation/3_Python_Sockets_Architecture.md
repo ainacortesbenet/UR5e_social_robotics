@@ -31,6 +31,7 @@ The main components are:
 - `motion_client.py`: command-line entry point that selects a registered motion;
 - `behavior_manager_client.py`: resolves the name, validates its YAML locally, opens the TCP connection, sends the complete YAML, and reads the response;
 - `ur5e_motion_server.py`: receives and parses YAML, prevents concurrent robot execution, and returns `OK` or `ERROR`;
+- `config.py`: stores client/server, robot, execution-mode, voice, and face settings;
 - `ur5e_robot_controller.py`: executes the sequence in RoboDK and/or the UR5e;
 - `motions/*.yaml`: declarative sequences containing `moveJ` and `moveL` steps.
 
@@ -242,7 +243,7 @@ SERVER_IP = "<TEACHER_PC_IP>"
 SERVER_PORT = 5000
 ```
 
-Select the execution mode in `ur5e_robot_controller.py`:
+Select the execution mode in `Python_sockets_Robotic_project/config.py`:
 
 ```python
 EXECUTION_MODE = "simulation_only"
@@ -307,7 +308,7 @@ python3 motion_client.py wave
 
 ### 3. Verify the behavior
 
-1. Set `EXECUTION_MODE = "simulation_only"`.
+1. Set `EXECUTION_MODE = "simulation_only"` in `config.py`.
 2. Start `ur5e_motion_server.py`.
 3. Confirm that `wave` appears with `python3 motion_client.py --list`.
 4. Run `python3 motion_client.py wave`.

@@ -8,12 +8,13 @@ from pathlib import Path
 from robodk.robolink import ITEM_TYPE_FRAME, ITEM_TYPE_ROBOT, Robolink
 from robodk.robomath import Pose_2_UR, rotx, roty, rotz, transl
 
+from config import EXECUTION_MODE, ROBOT_IP, ROBOT_PORT
 
-ROBOT_IP = "192.168.0.20"
-ROBOT_PORT = 30002
-
-# "simulation_only", "simulation_and_real" or "real_only"
-EXECUTION_MODE = "simulation_only"
+VALID_EXECUTION_MODES = {
+    "simulation_only",
+    "simulation_and_real",
+    "real_only",
+}
 
 BASE_DIR = Path(__file__).resolve().parent
 RDK_FILE = BASE_DIR / "resources" / "roboDK" / "Social_UR5e.rdk"
@@ -24,6 +25,12 @@ TOOL_NAME = "Hand"
 
 class RobotController:
     def __init__(self):
+        if EXECUTION_MODE not in VALID_EXECUTION_MODES:
+            allowed = ", ".join(sorted(VALID_EXECUTION_MODES))
+            raise ValueError(
+                f"Invalid EXECUTION_MODE in config.py: {EXECUTION_MODE!r}. "
+                f"Choose one of: {allowed}"
+            )
         self.robot_socket = None
         self.real_robot_connected = False
         print("Loading RoboDK...")
