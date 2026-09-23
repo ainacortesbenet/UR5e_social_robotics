@@ -145,45 +145,30 @@ Stop the server with `Ctrl+C` when finished.
 
 ## 3. Verify in the laboratory with two computers
 
-### 3.1 Determine the correct laboratory addresses
+### 3.1 Confirm the laboratory addresses
 
-The classroom router uses the `192.168.1.0/24` network. The teacher PC address follows this pattern:
+The classroom router uses the `192.168.1.0/24` network and the teacher PC always uses:
 
 ```text
-192.168.1.x5
+192.168.1.55
 ```
 
-Here, `x` is the workstation or group digit; do not type the letter `x` literally.
-
-| Workstation/group `x` | Teacher PC address |
-|---:|---|
-| 1 | `192.168.1.15` |
-| 2 | `192.168.1.25` |
-| 3 | `192.168.1.35` |
-| 4 | `192.168.1.45` |
-
-Confirm your assigned value with the instructor. Also confirm the UR5e IP separately. The repository currently contains `ROBOT_IP = "192.168.0.20"`; this is not the teacher PC address and may need to be changed on the teacher PC for the laboratory station.
+The UR5e has a separate address. The repository currently contains `ROBOT_IP = "192.168.0.20"`; this is not the teacher PC address. Confirm the robot's actual address with the instructor before enabling real execution.
 
 ### 3.2 Check client-to-server connectivity
 
 Connect both computers to the same laboratory router. On the student computer:
 
 ```bash
-ping <TEACHER_PC_IP>
+ping 192.168.1.55
 ```
 
-For group 2, for example:
+If this fails, check the cable/Wi-Fi connection, subnet, and local firewall before continuing.
 
-```bash
-ping 192.168.1.25
-```
-
-If this fails, check the selected workstation, cable/Wi-Fi connection, subnet, and local firewall before continuing.
-
-In `config.py` on the student computer, replace the local address with the assigned teacher PC address:
+In `config.py` on the student computer, set the fixed teacher PC address:
 
 ```python
-SERVER_IP = "192.168.1.25"  # Example for x = 2
+SERVER_IP = "192.168.1.55"
 SERVER_PORT = 5000
 ```
 
@@ -278,10 +263,24 @@ Install the optional dependencies:
 py -3.12 -m pip install -r requirements_voice.txt
 ```
 
-On Ubuntu, microphone and speech support may also require:
+`requirements_voice.txt` contains the Python packages and is used on Windows, macOS, and Ubuntu. Some operating systems also need native audio packages, which cannot be installed by `pip` and must not be added to this requirements file.
+
+On Windows, the command above is normally sufficient. Allow desktop applications to access the microphone in Windows privacy settings if prompted.
+
+On macOS, the command above is normally sufficient. If `PyAudio` cannot be installed, install PortAudio first and repeat the `pip` command:
 
 ```bash
-sudo apt install portaudio19-dev python3-pyaudio espeak-ng
+brew install portaudio
+```
+
+Also grant microphone access to Terminal or the application running Python in **System Settings > Privacy & Security > Microphone**.
+
+On Ubuntu, install the native microphone and speech components first, then run the same `pip` command:
+
+```bash
+sudo apt update
+sudo apt install portaudio19-dev espeak-ng
+py -3.12 -m pip install -r requirements_voice.txt
 ```
 
 In `config.py`, verify:
@@ -298,7 +297,7 @@ if any(k in text for k in ["wave", "wave hello", "say hello"]):
     return "wave"
 ```
 
-Keep the correct `SERVER_IP` for the stage being tested: `127.0.0.1` at home or the teacher PC's `192.168.1.x5` address in the laboratory. Start the motion server first, then run on the student computer:
+Keep the correct `SERVER_IP` for the stage being tested: `127.0.0.1` when client and server run on the same computer, or `192.168.1.55` when the server runs on the teacher PC in the laboratory. Start the motion server first, then run on the student computer:
 
 ```bash
 py -3.12 voice_motion_client.py
@@ -340,7 +339,7 @@ CAMERA_INDEX = 0
 FACE_MATCH_TOLERANCE = 0.6
 ```
 
-The repository includes `resources/Pictures/Manel_ref.png`, but the current default setting points to `resources/Pictures/authorised_user.jpg`. Either provide that file or change `REFERENCE_FACE_IMAGE`; otherwise verification will always fail.
+The repository includes `resources/Pictures/Manel_ref.png`, but the current default setting points to `resources/Pictures/authorised_user.png`. Either provide that file or change `REFERENCE_FACE_IMAGE`; otherwise verification will always fail.
 
 With the server running in `simulation_only` mode, execute:
 
@@ -371,22 +370,6 @@ Also test the negative cases:
 Do not weaken `FACE_MATCH_TOLERANCE` merely to make a poor photograph pass. Improve lighting, camera position, and the reference image first. Treat face matching as a classroom demonstration, not as secure biometric authentication.
 
 After all negative and positive cases pass in simulation, repeat the authorised face-and-voice chain with the real UR5e only under instructor supervision and using the already approved motion.
-
-## 6. Final acceptance checklist
-
-- [ ] The custom YAML is valid and registered in `MOTIONS`.
-- [ ] The command appears in `motion_client.py --list`.
-- [ ] The entire trajectory is safe and smooth in local RoboDK simulation.
-- [ ] The local client receives `OK: sequence executed`.
-- [ ] The assigned teacher PC address replaces `x` correctly in `192.168.1.x5`.
-- [ ] The student can ping the teacher PC and reach TCP port `5000`.
-- [ ] The two-computer test succeeds in `simulation_only` mode.
-- [ ] The instructor has reviewed and approved the motion.
-- [ ] The teacher PC uses the verified UR5e IP and reports a robot connection.
-- [ ] The first real run uses reduced speed and a clear workspace.
-- [ ] Valid, missing-activation-word, unknown, and exit voice cases behave correctly.
-- [ ] Authorised and unauthorised face cases behave correctly.
-- [ ] The final face-to-voice-to-YAML-to-motion chain succeeds in simulation before any real execution.
 
 ## Troubleshooting summary
 
