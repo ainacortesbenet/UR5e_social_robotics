@@ -37,6 +37,7 @@ Per resoldre aquesta dependència i permetre la compilació nativa de paquets C+
 
 4. **Verificació**
     Per comprovar que el mòdul està totalment operatiu, es va executar el següent test a la terminal:
+    ```powershell
     py -3.12 -c "import face_recognition; print('Tot funciona correctament!')"
 
 ![Configuració de Visual Studio Build Tools](resources/Pictures/verification.png)
