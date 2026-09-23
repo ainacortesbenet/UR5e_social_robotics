@@ -60,7 +60,7 @@ class BehaviorManager:
                 yaml_text = f.read()
 
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(5.0)
+            sock.settimeout(15.0)
             sock.connect((self.server_ip, self.server_port))
 
             sock.sendall(yaml_text.encode("utf-8"))
