@@ -1,0 +1,85 @@
+sequence_name: wave
+
+# Moviment de saludar (Wave) sense cap volta d'articulacions
+steps:
+  # 1. Posició inicial de repòs del laboratori (init.yaml)
+  - name: init_pose
+    motion: moveJ
+    joints_deg: [-60, -65, -100, 170, -60, 0]
+    acceleration: 0.5
+    velocity: 0.2
+    time: -1
+    blend: 0.0
+
+  # 2. Pujar al Target 6 directament per davant (θ4 = 301° manté la continuïtat)
+  - name: raise_arm_vertical
+    motion: moveJ
+    joints_deg: [-125.8, -94.1, -116.9, 301.0, -90.0, 125.8]
+    acceleration: 0.8
+    velocity: 0.3
+    time: -1
+    blend: 0.05
+
+  # 3. Posició central alta per començar a saludar (la mà queda al davant)
+  - name: face_palm_front
+    motion: moveJ
+    joints_deg: [-125.8, -94.1, -116.9, 301.0, -90.0, 125.8]
+    acceleration: 0.8
+    velocity: 0.3
+    time: -1
+    blend: 0.05
+
+  # 4. Saludar 1: Rotació de θ6 cap a la dreta (+30° -> 155.8°)
+  - name: wave_right_1
+    motion: moveJ
+    joints_deg: [-125.8, -94.1, -116.9, 301.0, -90.0, 155.8]
+    acceleration: 1.5
+    velocity: 0.6
+    time: -1
+    blend: 0.05
+
+  # 5. Saludar 1: Rotació de θ6 cap a l'esquerra (-30° -> 95.8°)
+  - name: wave_left_1
+    motion: moveJ
+    joints_deg: [-125.8, -94.1, -116.9, 301.0, -90.0, 95.8]
+    acceleration: 1.5
+    velocity: 0.6
+    time: -1
+    blend: 0.05
+
+  # 6. Saludar 2: Segona oscil·lació a la dreta (155.8°)
+  - name: wave_right_2
+    motion: moveJ
+    joints_deg: [-125.8, -94.1, -116.9, 301.0, -90.0, 155.8]
+    acceleration: 1.5
+    velocity: 0.6
+    time: -1
+    blend: 0.05
+
+  # 7. Saludar 2: Segona oscil·lació a l'esquerra (95.8°)
+  - name: wave_left_2
+    motion: moveJ
+    joints_deg: [-125.8, -94.1, -116.9, 301.0, -90.0, 95.8]
+    acceleration: 1.5
+    velocity: 0.6
+    time: -1
+    blend: 0.05
+
+  # 8. Tornar la mà al centre (125.8°)
+  - name: center_hand
+    motion: moveJ
+    joints_deg: [-125.8, -94.1, -116.9, 301.0, -90.0, 125.8]
+    acceleration: 0.8
+    velocity: 0.3
+    time: -1
+    blend: 0.05
+
+  # 9. Tornar a la posició inicial de repòs (init) desentretallant el camí
+  - name: return_to_init
+    motion: moveJ
+    joints_deg: [-60, -65, -100, 170, -60, 0]
+    acceleration: 0.5
+    velocity: 0.2
+    time: -1
+    blend: 0.0
+

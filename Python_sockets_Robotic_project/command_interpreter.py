@@ -56,4 +56,15 @@ class VoiceInterpreter:
         ]):
             return "give5"
 
+        if any(k in text for k in [
+            "wave",
+            "wife",
+            "gave",
+            "say hello",
+            "say hi",
+            "hello",
+            "hi"
+        ]):
+            return "wave"
+        
         return "unknown"
