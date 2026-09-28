@@ -75,7 +75,7 @@ In a simulation environment:
   ```
 - Move the robot to a desired joint configuration: 
   ```bash
-  ros2 launch ur5e_kinematics_pymoveit2 ur5e_forward_kinematics.launch.py \
+  ros2 launch ur5e_robot_controller ur5e_fkine.launch.py \
   joints:="[0.0, -90.0, 90.0, -90.0, -90.0, 0.0]"
   ```
   ![](../Documentation/Images/ur5e_motion/2_ur5e_moveit.png)
