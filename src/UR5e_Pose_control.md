@@ -19,10 +19,9 @@ The official package is `moveit_py`, but `pymoveit2` is simpler and recommended 
 
 ## 1. Install `pymoveit2`
 
-Basic Python interface for MoveIt 2 built on top of ROS 2 actions and services. (https://docs.ros.org/en/humble/p/pymoveit2/index.html
-)
+Basic Python interface for MoveIt 2 built on top of ROS 2 actions and services. (https://docs.ros.org/en/humble/p/pymoveit2/index.html)
 
-Instructions to install:
+This package is alredy installed on this repository, but in case you want to install it in future new custom repositories, here you will find the instructions to install it:
 - Clone this repository, install dependencies and build with colcon.
 
     ```bash
@@ -42,6 +41,8 @@ Instructions to install:
     ```
 
 ## 2. Create the package
+
+This package is alredy created on this repository, but in case you want to create it in future new custom repositories, here you will find the instructions:
 
 In your workspace:
 

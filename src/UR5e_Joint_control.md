@@ -7,6 +7,26 @@ The package contains two nodes:
 - `ur5e_joint_target` – you specify the 6 joint angles.
 - `ur5e_joint_targets` – you specify the 6 joint angles for multiple waypoints.
 
+## UR5e Robot setup in a virtual environment
+
+In simulation environment you have to install the complete UR metapackage:
+````bash
+sudo apt install ros-humble-ur
+````
+This metapackage installs:
+- ur_robot_driver
+- ur_moveit_config
+- ur_description
+- controllers and related configs
+
+Verify the `.bashrc` file:
+````bash
+source /opt/ros/humble/setup.bash
+source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+source /home/user/UR5e_social_robotics/install/setup.bash
+cd /home/user/UR5e_social_robotics
+```` 
+
 ## Joint Control
 
 ### Forward kinematics for 1 joint target
