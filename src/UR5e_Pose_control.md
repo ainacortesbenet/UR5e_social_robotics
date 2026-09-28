@@ -67,11 +67,11 @@ source install/setup.bash
 In a simulation environment:
 - Run the UR driver:
   ```bash
-  ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 use_fake_hardware:=true launch_rviz:=true
+  ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 use_fake_hardware:=true launch_rviz:=false
   ````
 - Run MoveIt:
   ```bash
-  ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e launch_rviz:=false
+  ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e launch_rviz:=true
   ```
 - Move the robot to a desired joint configuration: 
   ```bash
@@ -90,7 +90,7 @@ Bringup Real UR5e robot with MoveIt:
 Compute FK and move for a given joint configuration:
 
 ```bash
-ros2 launch ur5e_kinematics_pymoveit2 ur5e_forward_kinematics.launch.py \
+ros2 launch ur5e_robot_controller ur5e_fkine.launch.py \
   joints:="[0.0, -90.0, 90.0, -90.0, -90.0, 0.0]"
 ```
 
@@ -113,9 +113,7 @@ roll_ros = roll_robodk
 pitch_ros = pitch_robodk
 yaw_ros ≈ yaw_robodk + π
 ````
-**This has been taken into account in:**
-- the python node `ur5e_move_to_pose_table.py` and 
-- the `ur5e_move_to_pose_table.launch.py` launch file
+This has been taken into account in python node `static_base_link_to_table` and launch files `ur5e_pose.launch.py` and `ur5e_pose_sequence.launch.py`
 
 In a **simulation** environment:
   ```bash
