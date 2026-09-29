@@ -1,0 +1,79 @@
+common:
+  execute: true
+  group_name: ur_manipulator
+  ik_link: tool0
+
+  target_frame: table
+  planning_frame: base_link
+
+  max_velocity: 0.1
+  max_acceleration: 0.1
+  ik_timeout_sec: 1.0
+  print_joints: true
+
+steps:
+  # 1. Posició inicial de repòs (utilitza seed_joints per assegurar la configuració de braç)
+  - name: home_start
+    target_xyz: [0, -400, 500]
+    target_rpy: [90.0, 0.0, 0.0]
+    seed_from_joint_states: false
+    seed_joints: [-60, -65, -100, 170, -60, 0]
+    duration: 4.0
+    sleep_after: 1.0
+
+  # 2. Pujar la mà a posició de salutació (més alta i al davant)
+  - name: raise_hand
+    target_xyz: [0, -400, 700]
+    target_rpy: [90.0, 0.0, 0.0]
+    seed_from_joint_states: true
+    duration: 3.0
+    sleep_after: 0.5
+
+  # 3. Saludar 1: Moure cap a la dreta (X +150)
+  - name: wave_right_1
+    target_xyz: [150, -400, 700]
+    target_rpy: [90.0, 0.0, 0.0]
+    seed_from_joint_states: true
+    duration: 1.5
+    sleep_after: 0.2
+
+  # 4. Saludar 1: Moure cap a l'esquerra (X -150)
+  - name: wave_left_1
+    target_xyz: [-150, -400, 700]
+    target_rpy: [90.0, 0.0, 0.0]
+    seed_from_joint_states: true
+    duration: 1.5
+    sleep_after: 0.2
+
+  # 5. Saludar 2: Segona vegada cap a la dreta (X +150)
+  - name: wave_right_2
+    target_xyz: [150, -400, 700]
+    target_rpy: [90.0, 0.0, 0.0]
+    seed_from_joint_states: true
+    duration: 1.5
+    sleep_after: 0.2
+
+  # 6. Saludar 2: Segona vegada cap a l'esquerra (X -150)
+  - name: wave_left_2
+    target_xyz: [-150, -400, 700]
+    target_rpy: [90.0, 0.0, 0.0]
+    seed_from_joint_states: true
+    duration: 1.5
+    sleep_after: 0.2
+
+  # 7. Tornar la mà al centre alt
+  - name: center_hand
+    target_xyz: [0, -400, 700]
+    target_rpy: [90.0, 0.0, 0.0]
+    seed_from_joint_states: true
+    duration: 2.0
+    sleep_after: 0.5
+
+  # 8. Tornar a la posició inicial de repòs
+  - name: home_end
+    target_xyz: [0, -400, 500]
+    target_rpy: [90.0, 0.0, 0.0]
+    seed_from_joint_states: false
+    seed_joints: [-60, -65, -100, 170, -60, 0]
+    duration: 4.0
+    sleep_after: 1.0
