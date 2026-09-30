@@ -153,11 +153,37 @@ Bibliography:
 
 
 ## Installation
+
+On a windows PC you can simply do:
 ````bash
 py -3.12 -m pip install --upgrade pip
 py -3.12 -m pip install ultralytics
 ````
 > Chang the python version to agree with the one intalled in your computer
+
+When working in Ubuntu-ROS2 Humble project you have to:
+```bash
+apt-get install -y python3.10-venv
+cd /root/UR5e_social_robotics
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install ultralytics
+```
+Open .bashrc and print:
+```bash
+# ROS 2 Humble
+source /opt/ros/humble/setup.bash
+
+# Workspace de ROS del teu projecte
+source /root/UR5e_social_robotics/install/setup.bash
+
+# Entorn virtual de Python per YOLO / ultralytics
+source /root/UR5e_social_robotics/.venv/bin/activate
+
+# Opcional: conveniència
+export ROS_WORKSPACE=/root/UR5e_social_robotics
+```
 
 ## **1. YOLO Model generation for Classification task**
 
