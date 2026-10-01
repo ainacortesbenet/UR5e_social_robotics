@@ -140,7 +140,7 @@ You will have to install Udev rules on Host once and then check that the cameras
 - install Udev rules on Host
 ````bash
 git clone https://github.com/orbbec/OrbbecSDK_ROS2.git
-cd OrbbecSDK_ROS2
+cd OrbbecSDK_ROS2/orbbec_camera
 sudo bash scripts/install_udev_rules.sh
 ````
 - Verify that the camera is detected in the container
