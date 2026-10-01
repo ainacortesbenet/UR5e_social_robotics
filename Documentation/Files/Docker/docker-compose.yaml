@@ -22,6 +22,7 @@ services:
 
     volumes:
       - /dev:/dev
+      - /dev/bus/usb:/dev/bus/usb
       - /run/udev:/run/udev:ro
       # Entry point script
       - ./entrypoint_pc.sh:/entrypoint_pc.sh:ro

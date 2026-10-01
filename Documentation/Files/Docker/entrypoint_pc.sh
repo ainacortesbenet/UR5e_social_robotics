@@ -3,7 +3,13 @@ set -e
 
 # Source ROS 2 Humble
 source /opt/ros/humble/setup.bash
-source /root/UR5e_social_robotics/install/setup.bash
+
+# Source project setup only if it has been built
+if [ -f /root/UR5e_social_robotics/install/setup.bash ]; then
+  source /root/UR5e_social_robotics/install/setup.bash
+else
+  echo "[entrypoint] Workspace not built yet; skipping /root/UR5e_social_robotics/install/setup.bash"
+fi
 
 # Si hi ha venv, el carregues
 if [ -f /root/UR5e_social_robotics/.venv/bin/activate ]; then
