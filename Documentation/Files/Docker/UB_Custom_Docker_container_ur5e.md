@@ -2,12 +2,65 @@
 
 We have designed a University of Barcelona custom Docker-based ROS 2 Humble environment to simplify student access to ROS 2 and ensure platform-independent workflows in robotics courses.
 
+## Create a Python virtual environment on the host
+
+Before using the Docker container, create a Python virtual environment in the host project folder.
+
+```bash
+cd /root/UR5e_social_robotics
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install ultralytics pyrealsense2
+```
+
+For Windows, use:
+
+```powershell
+cd C:\path\to\UR5e_social_robotics
+py -3.10 -m venv .venv
+.\.venv\Scripts\activate
+python -m pip install --upgrade pip
+python -m pip install ultralytics pyrealsense2
+```
+
+Add the following lines to your shell startup file (`.bashrc` on Ubuntu/Linux):
+
+```bash
+# ROS 2 Humble
+source /opt/ros/humble/setup.bash
+source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+
+# Project workspace
+source /root/UR5e_social_robotics/install/setup.bash
+
+# Python virtual environment for YOLO / Realsense
+source /root/UR5e_social_robotics/.venv/bin/activate
+
+cd /root/UR5e_social_robotics
+```
+
+Then reload it:
+
+```bash
+source ~/.bashrc
+```
+
+Do not commit the `.venv` folder to GitHub. Add it to `.gitignore`:
+
+```gitignore
+.venv/
+venv/
+__pycache__/
+*.pyc
+```
 
 **PC-ubuntu/linux** Configure properly the `docker-compose.yaml`
 
 - Open a terminal in `~/UR5e_social_robotics/Documentation/Files/Docker` and run:
     ````bash
     xhost +local:root            # only in case of Host Ubuntu to allow X11 for Docker 
+    chmod +x entrypoint_pc.sh
     docker compose up
     ````
 **PC-windows** Configure properly the `docker-compose.yaml`
