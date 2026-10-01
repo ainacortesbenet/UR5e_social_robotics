@@ -7,7 +7,7 @@ We have designed a University of Barcelona custom Docker-based ROS 2 Humble envi
 Before using the Docker container, create a Python virtual environment in the host project folder.
 
 ```bash
-cd /root/UR5e_social_robotics
+cd UR5e_social_robotics
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
@@ -27,16 +27,9 @@ python -m pip install ultralytics pyrealsense2
 Add the following lines to your shell startup file (`.bashrc` on Ubuntu/Linux):
 
 ```bash
-# ROS 2 Humble
 source /opt/ros/humble/setup.bash
 source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
-
-# Project workspace
 source /root/UR5e_social_robotics/install/setup.bash
-
-# Python virtual environment for YOLO / Realsense
-source /root/UR5e_social_robotics/.venv/bin/activate
-
 cd /root/UR5e_social_robotics
 ```
 
@@ -78,9 +71,16 @@ __pycache__/
 - Clone your ws in `/root/`
 - Verify in container **.bashrc** to have:
     ```bash
+    # ROS 2 Humble
     source /opt/ros/humble/setup.bash
     source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+
+    # Project workspace
     source /root/UR5e_social_robotics/install/setup.bash
+
+    # Python virtual environment for YOLO / Realsense
+    source /root/UR5e_social_robotics/.venv/bin/activate
+
     cd /root/UR5e_social_robotics
     ```
 You are ready to work inside the container and to connect to the robot hardware within ROS2 Humble on Docker!
