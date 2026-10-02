@@ -20,6 +20,8 @@ dist/
 
 # Virtual environments
 .venv/
+.venv-win/
+.venv-humble/
 venv/
 .env
 env/

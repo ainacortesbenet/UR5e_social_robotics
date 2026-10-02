@@ -1,4 +1,4 @@
-# Student Guide: Verifying a UR5e Social Motion
+# Windows execution Social Robotics Project
 
 ## Purpose
 
@@ -44,19 +44,43 @@ Do not start `ur5e_robot_controller.py` directly. It is created by `ur5e_motion_
 
 ## 1. Prepare and register your motion
 
-Work from the project directory:
+This first implementation runs directly on Windows with Python 3.12 and does
+not require ROS 2. Create a dedicated virtual environment named `.venv-win`
+inside the project directory:
 
-```bash
-cd UR5e_social_robotics/Python_sockets_Robotic_project
+```powershell
+cd UR5e_social_robotics\Python_sockets_Robotic_project
+py -3.12 -m venv .venv-win
+.\.venv-win\Scripts\Activate.ps1
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r requirements.txt
 ```
 
-Install the core dependencies in your Python environment:
+After activation, verify that `python` is the interpreter from `.venv-win`:
 
-```bash
-py -3.12 -m pip install -r requirements.txt
+```powershell
+python --version
+python -c "import sys; print(sys.executable)"
 ```
 
-On MAC, use `python3.12` instead.
+The output should report Python 3.12 and a path ending in
+`.venv-win\Scripts\python.exe`. 
+
+If PowerShell blocks activation, allow the
+script for the current process only:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv-win\Scripts\Activate.ps1
+```
+
+Activate `.venv-win` again in every new PowerShell terminal before using this
+project:
+
+```powershell
+cd UR5e_social_robotics\Python_sockets_Robotic_project
+.\.venv-win\Scripts\Activate.ps1
+```
 
 Create `motions/<motion_name>.yaml`. Use `init.yaml`, `handshake.yaml`, or `give5.yaml` as a structural example. A sequence must contain `steps`; each step must be either:
 
@@ -107,7 +131,7 @@ The controller may report that it cannot connect to the real robot. This is expe
 Open terminal 1 in the project directory:
 
 ```bash
-py -3.12 ur5e_motion_server.py
+python ur5e_motion_server.py
 ```
 
 Expected evidence:
@@ -121,14 +145,14 @@ Expected evidence:
 Open terminal 2 in the same directory:
 
 ```bash
-py -3.12 motion_client.py --list
-py -3.12 motion_client.py <motion_name>
+python motion_client.py --list
+python motion_client.py <motion_name>
 ```
 
 For example:
 
 ```bash
-py -3.12 motion_client.py wave
+python motion_client.py wave
 ```
 
 A successful test must show all of the following:
@@ -186,7 +210,7 @@ Then start the server on the teacher PC:
 
 ```bash
 cd UR5e_social_robotics/Python_sockets_Robotic_project
-py -3.12 ur5e_motion_server.py
+python ur5e_motion_server.py
 ```
 
 If needed, allow inbound TCP port `5000` through the teacher PC firewall only for the private laboratory network.
@@ -195,8 +219,8 @@ On the student computer:
 
 ```bash
 cd UR5e_social_robotics/Python_sockets_Robotic_project
-py -3.12 motion_client.py --list
-py -3.12 motion_client.py <motion_name>
+python motion_client.py --list
+python motion_client.py <motion_name>
 ```
 
 Confirm that the YAML arrives at the teacher PC, the motion completes in RoboDK there, and the student client receives `OK: sequence executed`.
@@ -239,7 +263,7 @@ Keep only one assignment active. An invalid value makes the server stop with a c
 Restart the server on the teacher PC, then send the request from the student computer:
 
 ```bash
-py -3.12 motion_client.py <motion_name>
+python motion_client.py <motion_name>
 ```
 
 The server serialises access, so only one student should send a motion at a time. Stop immediately with the robot emergency stop or protective stop procedure if the trajectory differs from the approved simulation. Do not repeatedly resend a failed motion until the cause has been identified.
@@ -260,7 +284,7 @@ Voice recognition runs on the student computer and selects the same registered m
 Install the optional dependencies:
 
 ```bash
-py -3.12 -m pip install -r requirements_voice.txt
+python -m pip install -r requirements_voice.txt
 ```
 
 `requirements_voice.txt` contains the Python packages and is used on Windows, macOS, and Ubuntu. Some operating systems also need native audio packages, which cannot be installed by `pip` and must not be added to this requirements file.
@@ -280,7 +304,7 @@ On Ubuntu, install the native microphone and speech components first, then run t
 ```bash
 sudo apt update
 sudo apt install portaudio19-dev espeak-ng
-py -3.12 -m pip install -r requirements_voice.txt
+python -m pip install -r requirements_voice.txt
 ```
 
 In `config.py`, verify:
@@ -300,7 +324,7 @@ if any(k in text for k in ["wave", "wave hello", "say hello"]):
 Keep the correct `SERVER_IP` for the stage being tested: `127.0.0.1` when client and server run on the same computer, or `192.168.1.55` when the server runs on the teacher PC in the laboratory. Start the motion server first, then run on the student computer:
 
 ```bash
-py -3.12 voice_motion_client.py
+python voice_motion_client.py
 ```
 
 Say the activation word followed by the command, for example:
@@ -326,7 +350,7 @@ The face module is an access gate: it checks a face once and, when authorised, s
 Install the optional dependencies:
 
 ```bash
-py -3.12 -m pip install -r requirements_face.txt
+python -m pip install -r requirements_face.txt
 ```
 
 Installation of `dlib` may require operating-system build tools. Use the prepared laboratory environment if local installation fails.
@@ -344,7 +368,7 @@ The repository includes `resources/Pictures/Manel_ref.png`, but the current defa
 With the server running in `simulation_only` mode, execute:
 
 ```bash
-py -3.12 face_voice_motion_client.py
+python face_voice_motion_client.py
 ```
 
 Verify the complete chain:

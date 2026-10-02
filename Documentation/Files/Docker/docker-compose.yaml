@@ -1,6 +1,6 @@
 services:
   pc-humble:
-    image: manelpuig/ros2-humble-ub-ur5e:realsense
+    image: manelpuig/ros2-humble-ub-ur5e:latest
     container_name: pc_humble_ur5e
 
     privileged: true

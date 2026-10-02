@@ -11,9 +11,10 @@ else
   echo "[entrypoint] Workspace not built yet; skipping /root/UR5e_social_robotics/install/setup.bash"
 fi
 
-# Si hi ha venv, el carregues
-if [ -f /root/UR5e_social_robotics/.venv/bin/activate ]; then
-  source /root/UR5e_social_robotics/.venv/bin/activate
+# Activate the Humble Python environment when it has already been created in
+# the bind-mounted repository.
+if [ -f /root/UR5e_social_robotics/.venv-humble/bin/activate ]; then
+  source /root/UR5e_social_robotics/.venv-humble/bin/activate
 fi
 
 # DDS / ROS 2 networking (clear & explicit)
