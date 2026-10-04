@@ -26,6 +26,7 @@ setup(
             'ur5e_fkine_exe = ur5e_robot_controller.ur5e_fkine:main',
             'ur5e_pose_exe = ur5e_robot_controller.ur5e_pose:main',
             "ur5e_pose_sequence_exe = ur5e_robot_controller.ur5e_pose_sequence:main",
+            'handshake_executor = ur5e_robot_controller.handshake_executor:main',
         ],
     },
 )

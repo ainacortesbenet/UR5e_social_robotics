@@ -9,37 +9,39 @@ class HandshakeExecutor(Node):
         self.get_logger().info('Node Handshake Executor iniciat.')
 
     def generar_yaml_dinamic(self, wrist_x, wrist_y, wrist_z, offset_z=100.0):
-        """
-        Rep les coordenades del canell i actualitza l'estructura de passos.
-        """
-        ruta_yaml_original = 'handshake_sequence.yaml'
-        ruta_yaml_generat = 'handshake_execution_generated.yaml'
+    # 1. Obtenir la ruta absoluta on ROS 2 guarda els fitxers de configuració del paquet
+    package_share_dir = get_package_share_directory('ur5e_robot_controller')
+    
+    # Ruta al fitxer original dins de la carpeta config instal·lada
+    ruta_yaml_original = os.path.join(package_share_dir, 'config', 'handshake_sequence.yaml')
+    
+    # Ruta on guardarem el fitxer temporal
+    ruta_yaml_generat = os.path.join(package_share_dir, 'config', 'handshake_execution_generated.yaml')
 
-        # 1. Llegir el YAML base
-        if not os.path.exists(ruta_yaml_original):
-            self.get_logger().error(f"No s'ha trobat el fitxer {ruta_yaml_original}")
-            return False
+    # 2. Llegir el YAML base
+    if not os.path.exists(ruta_yaml_original):
+        self.get_logger().error(f"No s'ha trobat el fitxer a: {ruta_yaml_original}")
+        return None
 
-        with open(ruta_yaml_original, 'r') as f:
-            config = yaml.safe_load(f)
+    with open(ruta_yaml_original, 'r') as f:
+        config = yaml.safe_load(f)
 
-        # 2. Definir posicions basades en el canell detectat
-        target_handshake = [float(wrist_x), float(wrist_y), float(wrist_z)]
-        target_approach = [float(wrist_x), float(wrist_y), float(wrist_z) + offset_z]
+    # 3. Actualitzar les coordenades dinàmiques
+    target_handshake = [float(wrist_x), float(wrist_y), float(wrist_z)]
+    target_approach = [float(wrist_x), float(wrist_y), float(wrist_z) + offset_z]
 
-        # 3. Assignar els valors als passos corresponents
-        for step in config['steps']:
-            if step['name'] in ['approach_handshake', 'retreat_handshake']:
-                step['target_xyz'] = target_approach
-            elif step['name'] == 'handshake':
-                step['target_xyz'] = target_handshake
+    for step in config['steps']:
+        if step['name'] in ['approach_handshake', 'retreat_handshake']:
+            step['target_xyz'] = target_approach
+        elif step['name'] == 'handshake':
+            step['target_xyz'] = target_handshake
 
-        # 4. Desar el fitxer temporal actualitzat
-        with open(ruta_yaml_generat, 'w') as f:
-            yaml.dump(config, f, default_flow_style=False)
+    # 4. Desar el fitxer temporals
+    with open(ruta_yaml_generat, 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
 
-        self.get_logger().info(f"YAML generat amb èxit a: {ruta_yaml_generat}")
-        return ruta_yaml_generat
+    self.get_logger().info(f"YAML generat correctament a: {ruta_yaml_generat}")
+    return 'handshake_execution_generated.yaml'
 
     def executar_handshake(self, x, y, z):
         # Generar la configuració per a aquest moviment
