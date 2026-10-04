@@ -28,8 +28,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     pkg-config \
     python3-colcon-common-extensions \
+    python3-dev \
     python3-pip \
     python3-rosdep \
+    python3-venv \
+    portaudio19-dev \
+    espeak-ng \
     unzip \
     git \
     wget \

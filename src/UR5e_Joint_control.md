@@ -11,6 +11,7 @@ The package contains two nodes:
 
 In simulation environment you have to install the complete UR metapackage:
 ````bash
+sudo apt update
 sudo apt install ros-humble-ur
 ````
 This metapackage installs:

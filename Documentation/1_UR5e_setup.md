@@ -19,11 +19,69 @@ This metapackage installs:
 - ur_description
 - controllers and related configs
 
+### 1.1. Python environment for voice, face and vision
+
+On an Ubuntu 22.04 host, ROS 2 Humble uses the system Python 3.10. Keep ROS
+packages installed with `apt`, and install the additional Python packages in a
+virtual environment named `.venv-humble` at the repository root.
+
+Install the native dependencies once:
+
+```bash
+sudo apt update
+sudo apt install python3-venv python3-dev build-essential cmake \
+    portaudio19-dev espeak-ng
+```
+
+Create the environment with the Ubuntu 22.04 interpreter. Use
+`--system-site-packages` so that programs in the environment can also import
+ROS packages such as `rclpy`, which were installed with `apt`:
+
+```bash
+cd ~/UR5e_social_robotics
+python3 --version                 # expected: Python 3.10.x
+python3 -m venv --system-site-packages .venv-humble
+source .venv-humble/bin/activate
+python -m pip install --upgrade pip wheel
+```
+
+Install the project dependencies. The face requirements already include the
+voice requirements:
+
+```bash
+python -m pip install -r src/social_robot_hri/requirements_face.txt
+python -m pip install ultralytics
+```
+
+Ultralytics is only required by the vision exercises that use it. Verify the
+environment after installation:
+
+```bash
+python -c "import rclpy; print('rclpy OK')"
+python -c "import cv2, face_recognition, speech_recognition; print('HRI OK')"
+python -c "import ultralytics; print('Ultralytics OK')"
+```
+
+For each new terminal, source ROS, the built workspace and the virtual
+environment in this order:
+
+```bash
+source /opt/ros/humble/setup.bash
+source ~/UR5e_social_robotics/install/setup.bash
+source ~/UR5e_social_robotics/.venv-humble/bin/activate
+cd ~/UR5e_social_robotics
+```
+
+`.venv-humble` is local to this installation and must not be committed or
+copied to another computer. The Docker workflow uses the same environment name
+and Python version, but creates its own environment inside the container.
+
 Verify the `.bashrc` file:
 ````bash
 source /opt/ros/humble/setup.bash
 source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
 source /home/user/UR5e_social_robotics/install/setup.bash
+source /home/user/UR5e_social_robotics/.venv-humble/bin/activate
 cd /home/user/UR5e_social_robotics
 ```` 
 To sync you have to:
