@@ -49,7 +49,7 @@ not require ROS 2. Create a dedicated virtual environment named `.venv-win`
 inside the project directory:
 
 ```powershell
-cd UR5e_social_robotics\Python_sockets_Robotic_project
+cd Python_sockets_Robotic_project
 py -3.12 -m venv .venv-win
 .\.venv-win\Scripts\Activate.ps1
 python -m pip install --upgrade pip setuptools wheel
@@ -64,7 +64,7 @@ python -c "import sys; print(sys.executable)"
 ```
 
 The output should report Python 3.12 and a path ending in
-`.venv-win\Scripts\python.exe`. 
+`.venv-win\Scripts\python.exe`.
 
 If PowerShell blocks activation, allow the
 script for the current process only:
@@ -353,7 +353,7 @@ Install the optional dependencies:
 python -m pip install -r requirements_face.txt
 ```
 
-Installation of `dlib` may require operating-system build tools. Use the prepared laboratory environment if local installation fails.
+Installation of `dlib` may require operating-system build tools. Use the prepared laboratory environment if local installation fails. Be sure you have installed `Build Tools` following the guide on: UR5e_social_robotics\Documentation\Files\Install_Social_Libraries\Install_python_dlib_win.md
 
 Create a clear reference photograph containing one front-facing authorised face. Store it inside `resources/Pictures/`, then update `config.py` with its real filename. For example:
 
@@ -397,14 +397,14 @@ After all negative and positive cases pass in simulation, repeat the authorised 
 
 ## Troubleshooting summary
 
-| Symptom | Likely check |
-|---|---|
-| Motion is absent from `--list` | Register the exact key and relative YAML path in `MOTIONS`. |
-| `Unknown motion` | Use the registered key, not the YAML filename unless they are identical. |
-| `Connection refused` | Start the server and verify port `5000`. |
-| Connection timeout | Check `SERVER_IP`, router/subnet, ping, and firewall. |
-| `Robot is busy` | Wait for the active sequence to finish; do not resend repeatedly. |
-| RoboDK target error | Correct unreachable poses, reference frame, tool, or orientation. |
-| Real robot does not move | Confirm execution mode, robot IP, TCP port `30002`, and the server's connection message. |
-| Voice is ignored | Begin with `robot`, use an accepted phrase, check microphone and Internet access. |
-| Face is always denied | Check the configured path, one visible reference face, camera index, and lighting. |
+| Symptom                         | Likely check                                                                              |
+| ------------------------------- | ----------------------------------------------------------------------------------------- |
+| Motion is absent from`--list` | Register the exact key and relative YAML path in`MOTIONS`.                              |
+| `Unknown motion`              | Use the registered key, not the YAML filename unless they are identical.                  |
+| `Connection refused`          | Start the server and verify port`5000`.                                                 |
+| Connection timeout              | Check`SERVER_IP`, router/subnet, ping, and firewall.                                    |
+| `Robot is busy`               | Wait for the active sequence to finish; do not resend repeatedly.                         |
+| RoboDK target error             | Correct unreachable poses, reference frame, tool, or orientation.                         |
+| Real robot does not move        | Confirm execution mode, robot IP, TCP port`30002`, and the server's connection message. |
+| Voice is ignored                | Begin with`robot`, use an accepted phrase, check microphone and Internet access.        |
+| Face is always denied           | Check the configured path, one visible reference face, camera index, and lighting.        |
