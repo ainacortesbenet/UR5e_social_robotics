@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from geometry_msgs.msg import PointStamped
 import yaml
 import os
 import subprocess
@@ -7,8 +8,18 @@ import subprocess
 class HandshakeExecutor(Node):
     def __init__(self):
         super().__init__('handshake_executor')
-        self.get_logger().info('Node Handshake Executor iniciat.')
+        self.get_logger().info('Node Handshake Executor iniciat. Esperant dades del tòpic /wrist_detection...')
 
+        # Variable de seguretat per no llançar el moviment 30 vegades per segon mentre s'executa
+        self.executant_moviment = False
+
+        # SUBSCRIBER: Escolta el tòpic enviat pel teu script de YOLO Pose
+        self.subscription = self.create_subscription(
+            PointStamped,
+            '/wrist_detection',          # Tòpic on el vídeo emet la posició
+            self.wrist_callback,         # Funció que es crida quan arriben coordenades
+            10
+        )
 
     def wrist_callback(self, msg):
         """S'executa automàticament cada vegada que arriba una nova posició del canell."""
@@ -29,8 +40,6 @@ class HandshakeExecutor(Node):
         self.executant_moviment = False
 
     def generar_yaml_dinamic(self, wrist_x, wrist_y, wrist_z, offset_z=100.0):
-        # Definim les rutes directament a la carpeta config local
-        # (Tres os.path.dirname pugen des d'aquest fitxer fins a la carpeta arrel del paquet)
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         config_dir = os.path.join(base_dir, 'config')
 
@@ -43,22 +52,6 @@ class HandshakeExecutor(Node):
 
         with open(ruta_yaml_original, 'r') as f:
             config = yaml.safe_load(f)
-        
-        # AJUST MANUAL DE L'OFFSET DE LA TAULA RESPECTE A BASE_LINK
-        # =========================================================================
-        # Si la taula està, per exemple, 150 mm per sota de la base del robot:
-        offset_taula_z = 0.0  # Canvia aquest valor si la taula està més amunt/avall
-        offset_taula_x = 0.0  # Canvia si la taula està desplaçada en X
-        offset_taula_y = 0.0  # Canvia si la taula està desplaçada en Y
-
-        # Apliquem la conversió a les coordenades rebudes:
-        x_corregida = float(wrist_x) + offset_taula_x
-        y_corregida = float(wrist_y) + offset_taula_y
-        z_corregida = float(wrist_z) + offset_taula_z
-
-        # Guardem els punts ja convertits per al robot:
-        target_handshake = [x_corregida, y_corregida, z_corregida]
-        target_approach = [x_corregida, y_corregida, z_corregida + offset_z]
 
         target_handshake = [float(wrist_x), float(wrist_y), float(wrist_z)]
         target_approach = [float(wrist_x), float(wrist_y), float(wrist_z) + offset_z]
@@ -81,32 +74,25 @@ class HandshakeExecutor(Node):
         if yaml_final:
             self.get_logger().info(f"Enviant comanda de moviment al robot cap a: X={x}, Y={y}, Z={z}")
             
-            # 1. Rutes absolutes al fitxer YAML generat
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             ruta_yaml_absoluta = os.path.join(base_dir, 'config', 'handshake_execution_generated.yaml')
-            
-            # 2. Ruta a l'script ur5e_pose_sequence.py directament
             script_pose_seq = os.path.join(base_dir, 'ur5e_robot_controller', 'ur5e_pose_sequence.py')
             
-            # 3. Executem l'script de la seqüència passant-li la ruta del YAML
             comanda = f'python3 "{script_pose_seq}" --ros-args -p sequence_file:="{ruta_yaml_absoluta}"'
-            
-            self.get_logger().info(f"Executant comanda: {comanda}")
             subprocess.run(comanda, shell=True)
 
 def main(args=None):
     rclpy.init(args=args)
     node = HandshakeExecutor()
 
-    posicio_canell_detectada = {'x': -280.0, 'y': -320.0, 'z': 210.0}
-
-    node.executar_handshake(
-        posicio_canell_detectada['x'],
-        posicio_canell_detectada['y'],
-        posicio_canell_detectada['z']
-    )
-
-    rclpy.shutdown()
+    try:
+        # A diferència de la versió 'mocked', rclpy.spin manté el node obert escoltant el tòpic
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
