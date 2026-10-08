@@ -1,8 +1,8 @@
-# Installing `dlib` on Windows and macOS (Python 3.12)
+# Installing `dlib` on Windows and macOS (Python 3.11/3.12)
 
-> **Operating-system note:** The first procedure below is for **Windows**. If you are using a **Mac**, follow the dedicated [macOS procedure](#macos-installation) instead. Windows uses `py -3.12`, whereas macOS normally uses `python3.12`.
+> **Operating-system note:** The first procedure below is for **Windows**. If you are using a **Mac**, follow the dedicated [macOS procedure](#macos-installation) instead. On Windows, activate the project's `.venv-win` environment and use `python` so that packages are installed into that environment. macOS normally uses `python3.12`.
 
-This document describes how to install the `face_recognition` library and its main dependency, `dlib`, on Windows or macOS with Python 3.12. Because `dlib` contains C++ code, `pip` may need a native compiler and CMake when a compatible prebuilt wheel is not available.
+This document describes how to install the `face_recognition` library and its main dependency, `dlib`, on Windows or macOS with Python 3.11 or 3.12. Because `dlib` contains C++ code, `pip` may need a native compiler and CMake when a compatible prebuilt wheel is not available.
 
 ## Windows installation
 
@@ -11,7 +11,7 @@ This document describes how to install the `face_recognition` library and its ma
 When installing the facial-recognition requirements with:
 
 ```powershell
-py -3.12 -m pip install -r requirements_face.txt
+python -m pip install -r requirements_face.txt
 ```
 
 the process failed while compiling `dlib` and displayed errors similar to:
@@ -45,22 +45,61 @@ In the Visual Studio Installer, select the **Desktop development with C++** work
 
 ### 3. Restart the environment and install the packages
 
-After the build tools have finished installing, restart VS Code and open a new PowerShell terminal. From the `Python_sockets_Robotic_project` directory, run the installation command again:
+After the build tools have finished installing, restart Windows or VS Code and open a new PowerShell terminal. Activate the project environment and confirm that `python` belongs to `.venv-win`:
 
 ```powershell
-py -3.12 -m pip install -r requirements_face.txt
+cd UR5e_social_robotics\Python_sockets_Robotic_project
+.\.venv-win\Scripts\Activate.ps1
+python --version
+python -c "import sys; print(sys.executable)"
+```
+
+The executable path must end in `.venv-win\Scripts\python.exe`. Then run the installation:
+
+```powershell
+python -m pip install -r requirements_face.txt
 ```
 
 `pip` should now be able to compile and install the `dlib` source code successfully.
 
 ![Successful dlib installation](./Images/dlib_installation.png)
 
+### 3.1 Work around `MSB6003` or missing `.tlog` directories
+
+On some Windows systems, MSBuild finds the compiler and linker but fails while
+using the deeply nested temporary directory created by `pip`. The relevant
+error looks similar to:
+
+```text
+error MSB6003: The specified task executable "link.exe" could not be run.
+System.IO.DirectoryNotFoundException: Could not find ...\cmTC_*.tlog
+```
+
+This is different from a missing compiler: the output already contains valid
+paths to `cl.exe`, `link.exe`, and MSBuild. Use a short temporary directory for
+the current PowerShell session and build `dlib` separately:
+
+```powershell
+New-Item -ItemType Directory -Force C:\t
+$env:TEMP = "C:\t"
+$env:TMP = "C:\t"
+python -c "import tempfile; print(tempfile.gettempdir())"
+python -m pip install --no-cache-dir dlib==20.0.1
+python -m pip install -r requirements_face.txt
+```
+
+The temporary-directory check must print `C:\t`. The `TEMP` and `TMP`
+assignments affect only the current PowerShell process; they do not permanently
+change the Windows configuration. Do not apply this workaround on every
+computer by default. Use it when the installation fails with the same
+`MSB6003`/`.tlog` error.
+
 ### 4. Verify the installation
 
 Run the following test in PowerShell to confirm that the module can be imported:
 
 ```powershell
-py -3.12 -c "import face_recognition; print('face_recognition is working correctly!')"
+python -c "import dlib, face_recognition; print('dlib', dlib.__version__, '- face_recognition is working correctly!')"
 ```
 
 If the command prints the confirmation message without an exception, the installation is working correctly.
