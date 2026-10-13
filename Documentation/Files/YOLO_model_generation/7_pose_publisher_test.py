@@ -114,11 +114,24 @@ def main(args=None):
                     
                     if target_pt:
                         wx, wy = target_pt
-                        print(f"[YOLO DETECTAT] Canell -> X: {wx:.1f}, Y: {wy:.1f} | Temps: {elapsed_ms:.1f} ms")
+    
+                        # ------------------------------------------------------------------
+                        # MAPEIG DE PÍXELS A L'ESPAI REAL DEL ROBOT (UR5e WORKSPACE)
+                        # ------------------------------------------------------------------
+                        # Convertim x (píxels 0..640) a l'eix X del robot (ex: de -250 mm a +250 mm)
+                        x_robot = ((wx / 640.0) * 500.0) - 250.0
                         
-                        # Publica les coordenades a ROS 2
-                        # Nota: Aquí passem X i Y en píxels (o escala adaptada si tens profunditat Z)
-                        ros_node.publish_wrist(x=wx, y=wy, z=210.0)
+                        # Posem una distància Y frontal reachable (ex: -400 mm respecte la base)
+                        y_robot = -400.0
+                        
+                        # Posem una alçada Z segura per sobre de la taula (ex: 200 mm)
+                        z_robot = 200.0
+                        
+                        print(f"[YOLO MAPPED] Pixels: ({wx:.0f}, {wy:.0f}) -> Robot Workspace: X={x_robot:.1f}, Y={y_robot:.1f}, Z={z_robot:.1f}")
+                        
+                        # Publica les coordenades adaptades
+                        ros_node.publish_wrist(x=x_robot, y=y_robot, z=z_robot)
+                        
                     else:
                         print("Canell no visible en aquest fotograma.")
 
