@@ -8,10 +8,16 @@ import sys
 import os
 
 # ==============================
-# PARAMETERS
+# PARAMETERS & PATHS
 # ==============================
-MODEL_PATH = "yolo11n-pose.pt"
-CAMERA_INDEX = 0
+# Troba la carpeta arrel del workspace de forma dinàmica
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# Pujem nivells fins a trobar l'arrel (~/UR5e_social_robotics)
+WORKSPACE_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
+
+MODEL_PATH = os.path.join(SCRIPT_DIR, "yolo11n-pose.pt")
+VIDEO_PATH = os.path.join(WORKSPACE_DIR, "Documentation", "Images", "Videos", "handshake_test_video.mp4")
+
 IMG_SIZE = 640
 CONF_THRESHOLD = 0.35
 KEYPOINT_CONF_THRESHOLD = 0.35
@@ -103,29 +109,34 @@ def main(args=None):
     ros_node = YoloWristPublisher()
 
     # Load Model
+    if not os.path.exists(MODEL_PATH):
+        print(f"Error: no s'ha trobat el model a {MODEL_PATH}")
+        sys.exit(1)
+        
     model = YOLO(MODEL_PATH)
 
-    # Open Camera (compatible amb Linux/Ubuntu i Windows)
-    cap = cv2.VideoCapture(CAMERA_INDEX)
-
-    if not cap.isOpened():
-        print(f"Error: camera {CAMERA_INDEX} could not be opened")
+    # Open Video File (en lloc de la webcam fisica)
+    if not os.path.exists(VIDEO_PATH):
+        print(f"Error: no s'ha trobat el fitxer de vídeo a {VIDEO_PATH}")
         sys.exit(1)
 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-    cap.set(cv2.CAP_PROP_FPS, 30)
+    cap = cv2.VideoCapture(VIDEO_PATH)
 
-    print("Camera opened successfully")
-    print("Press 'q' to quit or Ctrl+C")
+    if not cap.isOpened():
+        print(f"Error: no s'ha pogut obrir el vídeo {VIDEO_PATH}")
+        sys.exit(1)
+
+    print(f"Fitxer de vídeo obert correctament des de: {VIDEO_PATH}")
+    print("Premeu 'q' per sortir o Ctrl+C")
 
     try:
         while rclpy.ok():
             ret, frame = cap.read()
 
             if not ret:
-                print("Error: could not read frame")
-                break
+                # Quan arriba al final del vídeo, torna al primer fotograma (Loop)
+                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                continue
 
             start_time = time.perf_counter()
 
@@ -166,24 +177,24 @@ def main(args=None):
 
                     if target_pt:
                         wx, wy = target_pt
-                        # PUBLICACIONS A ROS 2:
+                        # Publicació de les coordenades a ROS 2
                         ros_node.publish_wrist(wx, wy)
 
             lines.append(f"time: {elapsed_ms:.1f} ms")
 
             output_frame = draw_left_info_panel(annotated_frame, lines)
 
-            # Visualització si l'entorn té interfície gràfica
+            # Visualització de la imatge si la finestra GUI està disponible
             try:
                 cv2.imshow("YOLO Pose - Head and Wrists", output_frame)
-                key = cv2.waitKey(1) & 0xFF
+                key = cv2.waitKey(30) & 0xFF
                 if key == ord("q"):
                     print("Exit requested with q")
                     break
             except cv2.error:
                 pass
 
-            # Manté ROS 2 actiu
+            # Processa esdeveniments de ROS 2
             rclpy.spin_once(ros_node, timeout_sec=0.001)
 
     except KeyboardInterrupt:
@@ -194,7 +205,7 @@ def main(args=None):
         cv2.destroyAllWindows()
         ros_node.destroy_node()
         rclpy.shutdown()
-        print("Camera released successfully")
+        print("Recursos tancats correctament")
 
 
 if __name__ == '__main__':
