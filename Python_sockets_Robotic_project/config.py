@@ -9,7 +9,7 @@ ROBOT_IP = "192.168.0.20"
 ROBOT_PORT = 30002
 
 # "simulation_only", "simulation_and_real" or "real_only"
-EXECUTION_MODE = "simulation_only"
+EXECUTION_MODE = "simulation_and_real"
 
 #RDK_FILE = "src/roboDK/Social_UR5e.rdk"
 

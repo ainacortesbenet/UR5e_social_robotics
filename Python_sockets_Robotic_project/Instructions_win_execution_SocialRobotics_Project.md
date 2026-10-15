@@ -244,13 +244,16 @@ The teacher should restart the server after changing the controller configuratio
 
 ### 3.5 Execute the approved real test
 
+First of all, verify that **Professor's PC**:
+- has the address: `192.168.0.10`
+- verify the connection to the robot:
+    ````shell
+    Test-NetConnection 192.168.0.20 -Port 30002
+    ````
+
 On the teacher PC, set one of these modes in `config.py` as directed by the instructor:
 
-```python
-EXECUTION_MODE = "simulation_and_real"
-```
-
-This mode keeps the RoboDK execution while also sending URScript to the UR5e. `real_only` is also available, but should only be selected by the instructor. These are the only three accepted values in `config.py`:
+instructor. These are the only three accepted values in `config.py`:
 
 ```python
 EXECUTION_MODE = "simulation_only"      # RoboDK only
@@ -260,7 +263,15 @@ EXECUTION_MODE = "real_only"            # UR5e only
 
 Keep only one assignment active. An invalid value makes the server stop with a clear error before loading RoboDK or moving the robot.
 
-Restart the server on the teacher PC, then send the request from the student computer:
+Restart the server on the teacher PC before semding the request from the client student pc
+
+Fom the **student's PC**:
+- verify the connection to the robot:
+    ````shell
+    Test-NetConnection 192.168.1.2 -Port 5000
+    ````
+
+- Once restarted the server program, send the request from the student computer:
 
 ```bash
 python motion_client.py <motion_name>
