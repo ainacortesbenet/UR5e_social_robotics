@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide describes how to verify your chosen social motion in three stages:
+This guide describes how to verify your chosen social motion in successive stages:
 
 1. locally, in RoboDK, using one computer at home;
 2. in the laboratory, using your computer as the client and the teacher's computer as the server connected to the UR5e;
@@ -30,55 +30,40 @@ The student computer never connects directly to the UR5e. All three client inter
 
 ## Project files used in this activity
 
-- `motions/<motion_name>.yaml`: the motion sequence;
-- `behavior_manager_client.py`: registers the motion name and sends its YAML;
-- `motion_client.py`: command-line interface;
-- `voice_motion_client.py`: voice interface;
-- `face_voice_motion_client.py`: face gate followed by the voice interface;
-- `command_interpreter.py`: maps spoken phrases to registered motion names;
 - `config.py`: client/server, robot, execution-mode, voice, and face settings;
+- `motions/<motion_name>.yaml`: the motion sequence;
 - `ur5e_motion_server.py`: TCP server running on the teacher's computer;
-- `ur5e_robot_controller.py`: executes motions in RoboDK and/or on the real robot.
-
-Do not start `ur5e_robot_controller.py` directly. It is created by `ur5e_motion_server.py`.
+    - Imports: `ur5e_robot_controller.py`: executes motions in RoboDK and/or on the real robot.
+- `face_voice_motion_client.py`: face gate followed by the voice interface;
+    - Imports: `voice_motion_client.py`: voice interface;
+        - Imports: `command_interpreter.py`: maps spoken phrases to registered motion names;
+        - Imports: `behavior_manager_client.py`: registers the motion name and sends its YAML;
+- `motion_client.py`: command-line interface;
+    - Imports: `behavior_manager_client.py`: registers the motion name and sends its YAML;
 
 ## 1. Prepare and register your motion
 
-This first implementation runs directly on Windows with Python 3.12 and does
+This first implementation runs directly on Windows with Python 3.10 and does
 not require ROS 2. Create a dedicated virtual environment named `.venv-win`
 inside the project directory:
 
 ```powershell
 cd Python_sockets_Robotic_project
-py -3.12 -m venv .venv-win
+py -3.10 -m venv .venv-win
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv-win\Scripts\Activate.ps1
 python -m pip install --upgrade pip setuptools wheel
 python -m pip install -r requirements.txt
 ```
 
-After activation, verify that `python` is the interpreter from `.venv-win`:
-
-```powershell
-python --version
-python -c "import sys; print(sys.executable)"
-```
-
-The output should report Python 3.12 and a path ending in
-`.venv-win\Scripts\python.exe`.
-
-If PowerShell blocks activation, allow the
-script for the current process only:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv-win\Scripts\Activate.ps1
-```
+After activation, `python` is the interpreter from `.venv-win`
 
 Activate `.venv-win` again in every new PowerShell terminal before using this
 project:
 
 ```powershell
 cd UR5e_social_robotics\Python_sockets_Robotic_project
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv-win\Scripts\Activate.ps1
 ```
 
@@ -98,18 +83,9 @@ MOTIONS = {
 }
 ```
 
-Check the following before running it:
+## 2. Verify locally on one computer in simulation
 
-- the first pose is safe and reachable;
-- intermediate poses do not cross the table, robot base, tool, people, or other obstacles;
-- speed and acceleration are low for initial tests;
-- the last step returns to a safe pose;
-- all `moveJ` lists have six joint values;
-- all Cartesian positions use millimetres and all angles use degrees.
-
-## 2. Verify locally on one computer at home
-
-### 2.1 Select simulation-only execution
+### 2.1 Review configuration parameters
 
 In `config.py`, set:
 
@@ -121,16 +97,19 @@ In `config.py`, make the client connect to the server on the same computer:
 
 ```python
 SERVER_IP = "127.0.0.1"
-SERVER_PORT = 5000
 ```
 
-The controller may report that it cannot connect to the real robot. This is expected at home. In `simulation_only` mode, no URScript is sent to a real UR5e.
+In `simulation_only` mode, the controller does not attempt to connect to the
+real UR5e and no URScript is sent to it.
 
 ### 2.2 Start the local server
 
 Open terminal 1 in the project directory:
 
-```bash
+```powershell
+cd UR5e_social_robotics\Python_sockets_Robotic_project
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv-win\Scripts\Activate.ps1
 python ur5e_motion_server.py
 ```
 
@@ -138,20 +117,23 @@ Expected evidence:
 
 - RoboDK opens;
 - `Social_UR5e.rdk` is loaded;
-- the terminal reports `UR5e classroom server listening on 0.0.0.0:5000`.
+- the terminal reports `UR5e classroom server listening on 0.0.0.0:5000`. This means that the server is listening on all network interfaces.
 
-### 2.3 Send the motion from a second terminal
+### 2.3 Send the motion from a second terminal as a client
 
 Open terminal 2 in the same directory:
 
-```bash
+```powershell
+cd UR5e_social_robotics\Python_sockets_Robotic_project
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv-win\Scripts\Activate.ps1
 python motion_client.py --list
 python motion_client.py <motion_name>
 ```
 
 For example:
 
-```bash
+```powershell
 python motion_client.py wave
 ```
 
@@ -163,138 +145,108 @@ A successful test must show all of the following:
 - the client receives `OK: sequence executed`;
 - the motion begins and ends in the intended safe poses and looks socially understandable.
 
-An `OK` response only means that the sequence completed; it is not proof that the motion is safe. Inspect the complete trajectory visually, not only its final pose. Correct the YAML and repeat the test until the whole motion is safe and smooth.
-
 Stop the server with `Ctrl+C` when finished.
 
 ## 3. Verify in the laboratory with two computers
 
-### 3.1 Confirm the laboratory addresses
+### 3.1 Review configuration parameters
 
-The classroom router uses the `192.168.1.0/24` network and the teacher PC always uses:
+The classroom router uses the `192.168.1.0/24` network:
 
-```text
-192.168.1.55
-```
+- the teacher PC always uses `192.168.1.5`;
+- each student PC uses `192.168.1.x5`, where `x` is the group number (for example, group 1 uses `192.168.1.15`). Confirm the assigned address with the instructor before configuring it.
 
-The UR5e has a separate address. The repository currently contains `ROBOT_IP = "192.168.0.20"`; this is not the teacher PC address. Confirm the robot's actual address with the instructor before enabling real execution.
-
-### 3.2 Check client-to-server connectivity
-
-Connect both computers to the same laboratory router. On the student computer:
-
-```bash
-ping 192.168.1.55
-```
-
-If this fails, check the cable/Wi-Fi connection, subnet, and local firewall before continuing.
-
-In `config.py` on the student computer, set the fixed teacher PC address:
-
-```python
-SERVER_IP = "192.168.1.55"
-SERVER_PORT = 5000
-```
-
-Do not change `SERVER_IP` in `ur5e_motion_server.py`; `0.0.0.0` is intentional because it makes the server listen on the teacher PC's network interfaces.
-
-### 3.3 Perform a two-computer simulation first
-
-On the teacher PC, keep this setting in `config.py`:
+In `config.py`, set:
 
 ```python
 EXECUTION_MODE = "simulation_only"
 ```
 
-Then start the server on the teacher PC:
+In `config.py` on the student PC, make the client connect to the server on the teacher PC:
 
-```bash
+```python
+SERVER_IP = "192.168.1.5"
+```
+
+### 3.2 Start the local server in PC-Professor
+
+Start the server on the teacher PC:
+
+```powershell
 cd UR5e_social_robotics/Python_sockets_Robotic_project
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv-win\Scripts\Activate.ps1
 python ur5e_motion_server.py
 ```
 
-If needed, allow inbound TCP port `5000` through the teacher PC firewall only for the private laboratory network.
+### 3.3 Send the motion from a PC-Student
 
 On the student computer:
 
-```bash
+```powershell
 cd UR5e_social_robotics/Python_sockets_Robotic_project
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv-win\Scripts\Activate.ps1
 python motion_client.py --list
 python motion_client.py <motion_name>
 ```
 
 Confirm that the YAML arrives at the teacher PC, the motion completes in RoboDK there, and the student client receives `OK: sequence executed`.
 
-If the client reports `Connection refused`, verify that the server is running and listening on port `5000`. If it times out, recheck the IP, router connection, and firewall.
-
-### 3.4 Obtain approval and prepare the real robot
-
-Only the instructor may approve the transition to real motion. Before execution:
-
-- show the complete RoboDK simulation to the instructor;
-- verify the station's actual UR5e address and set `ROBOT_IP` in `ur5e_robot_controller.py` on the teacher PC;
-- verify the tool and TCP configured in RoboDK and on the robot;
-- clear the robot workspace and keep all people outside it;
-- ensure the emergency stop is accessible and identify who will operate it;
-- use reduced speed on the teach pendant for the first run;
-- start from the same physical configuration used by the simulation;
-- never hold the robot or stand at the handshake/high-five target during the first real test.
-
-The teacher should restart the server after changing the controller configuration and confirm that it prints a successful connection to the correct UR5e address.
-
-### 3.5 Execute the approved real test
+## 4. Execute real test on UR5e
 
 First of all, verify that **Professor's PC**:
-- has the address: `192.168.0.10`
-- verify the connection to the robot:
-    ````shell
+
+- has the fixed IP address: `192.168.0.10`
+- can connect to the UR5e at `ROBOT_IP = "192.168.0.20"`:
+    ````powershell
     Test-NetConnection 192.168.0.20 -Port 30002
     ````
 
-On the teacher PC, set one of these modes in `config.py` as directed by the instructor:
-
-instructor. These are the only three accepted values in `config.py`:
-
+On the teacher PC, set the execution mode in `config.py`:
 ```python
-EXECUTION_MODE = "simulation_only"      # RoboDK only
 EXECUTION_MODE = "simulation_and_real"  # RoboDK and UR5e
-EXECUTION_MODE = "real_only"            # UR5e only
 ```
 
-Keep only one assignment active. An invalid value makes the server stop with a clear error before loading RoboDK or moving the robot.
+Before restarting the server, confirm that the approved RoboDK simulation has
+completed successfully, the configured TCP/tool is correct, the robot workspace
+is clear, reduced speed is selected, and the emergency stop is accessible.
 
-Restart the server on the teacher PC before semding the request from the client student pc
+Restart the server on the teacher PC before sending a request from a student PC.
+On each student PC, keep `SERVER_IP = "192.168.1.5"` in `config.py`.
 
-Fom the **student's PC**:
-- verify the connection to the robot:
-    ````shell
-    Test-NetConnection 192.168.1.2 -Port 5000
+From the **student's PC**:
+
+- verify the connection to the teacher's server:
+    ````powershell
+    Test-NetConnection 192.168.1.5 -Port 5000
     ````
 
 - Once restarted the server program, send the request from the student computer:
 
-```bash
-python motion_client.py <motion_name>
-```
+    ```powershell
+    cd UR5e_social_robotics/Python_sockets_Robotic_project
+    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+    .\.venv-win\Scripts\Activate.ps1
+    python motion_client.py <motion_name>
+    ```
 
-The server serialises access, so only one student should send a motion at a time. Stop immediately with the robot emergency stop or protective stop procedure if the trajectory differs from the approved simulation. Do not repeatedly resend a failed motion until the cause has been identified.
+The server accepts only one motion at a time. If another request arrives while a
+motion is running, it is rejected with `ERROR: Robot is busy. Try again later.`
+Stop immediately with the robot emergency stop or protective stop procedure if
+the trajectory differs from the approved simulation.
 
-Record the following evidence:
 
-- the motion name and YAML version used;
-- the assigned teacher PC IP;
-- successful server connection and response;
-- simulation result;
-- instructor approval and real-robot result;
-- any corrections made after the first test.
-
-## 4. Add and verify voice identification
+## 5. Add and verify voice identification
 
 Voice recognition runs on the student computer and selects the same registered motion. It uses Google's speech-recognition service, so Internet access is required.
 
 Install the optional dependencies:
 
-```bash
+```powershell
+cd UR5e_social_robotics/Python_sockets_Robotic_project
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv-win\Scripts\Activate.ps1
 python -m pip install -r requirements_voice.txt
 ```
 
@@ -332,9 +284,12 @@ if any(k in text for k in ["wave", "wave hello", "say hello"]):
     return "wave"
 ```
 
-Keep the correct `SERVER_IP` for the stage being tested: `127.0.0.1` when client and server run on the same computer, or `192.168.1.55` when the server runs on the teacher PC in the laboratory. Start the motion server first, then run on the student computer:
+Keep the correct `SERVER_IP` for the stage being tested: `127.0.0.1` when client and server run on the same computer, or `192.168.1.5` when the server runs on the teacher PC in the laboratory. Start the motion server first, then run on the student computer:
 
-```bash
+```powershell
+cd UR5e_social_robotics/Python_sockets_Robotic_project
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv-win\Scripts\Activate.ps1
 python voice_motion_client.py
 ```
 
@@ -354,17 +309,21 @@ Verify these cases while the server is in `simulation_only` mode:
 
 Only repeat the voice test with the real robot after the command-line version has been approved. A person must still supervise the robot; speech recognition is not a safety system.
 
-## 5. Add face verification before voice control
+## 6. Add face verification before voice control
 
 The face module is an access gate: it checks a face once and, when authorised, starts the same voice client. It does not continuously identify the user and it does not add robot safety guarantees.
 
 Install the optional dependencies:
 
-```bash
+```powershell
+cd UR5e_social_robotics/Python_sockets_Robotic_project
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv-win\Scripts\Activate.ps1
 python -m pip install -r requirements_face.txt
 ```
 
-Installation of `dlib` may require operating-system build tools. Use the prepared laboratory environment if local installation fails. Be sure you have installed `Build Tools` following the guide on: UR5e_social_robotics\Documentation\Files\Install_Social_Libraries\Install_python_dlib_win.md
+Installation of `dlib` may require operating-system build tools. Use the prepared laboratory environment if local installation fails. Be sure you have installed `Build Tools` following the guide on:
+[Install dlib on Windows](https://github.com/manelpuig/UR5e_social_robotics/blob/1b461bcd0520dd3f2482ecfd178c4b1021cdb94a/Documentation/Files/Install_Social_Libraries/Install_python_dlib_win.md)
 
 Create a clear reference photograph containing one front-facing authorised face. Store it inside `resources/Pictures/`, then update `config.py` with its real filename. For example:
 
@@ -374,11 +333,13 @@ CAMERA_INDEX = 0
 FACE_MATCH_TOLERANCE = 0.6
 ```
 
-The repository includes `resources/Pictures/Manel_ref.png`, but the current default setting points to `resources/Pictures/authorised_user.png`. Either provide that file or change `REFERENCE_FACE_IMAGE`; otherwise verification will always fail.
+The repository includes both `resources/Pictures/Manel_ref.png` and the default
+`resources/Pictures/authorised_user.png`. Replace the default image or change
+`REFERENCE_FACE_IMAGE` when a different authorised user must be verified.
 
 With the server running in `simulation_only` mode, execute:
 
-```bash
+```powershell
 python face_voice_motion_client.py
 ```
 
@@ -405,17 +366,3 @@ Also test the negative cases:
 Do not weaken `FACE_MATCH_TOLERANCE` merely to make a poor photograph pass. Improve lighting, camera position, and the reference image first. Treat face matching as a classroom demonstration, not as secure biometric authentication.
 
 After all negative and positive cases pass in simulation, repeat the authorised face-and-voice chain with the real UR5e only under instructor supervision and using the already approved motion.
-
-## Troubleshooting summary
-
-| Symptom                         | Likely check                                                                              |
-| ------------------------------- | ----------------------------------------------------------------------------------------- |
-| Motion is absent from`--list` | Register the exact key and relative YAML path in`MOTIONS`.                              |
-| `Unknown motion`              | Use the registered key, not the YAML filename unless they are identical.                  |
-| `Connection refused`          | Start the server and verify port`5000`.                                                 |
-| Connection timeout              | Check`SERVER_IP`, router/subnet, ping, and firewall.                                    |
-| `Robot is busy`               | Wait for the active sequence to finish; do not resend repeatedly.                         |
-| RoboDK target error             | Correct unreachable poses, reference frame, tool, or orientation.                         |
-| Real robot does not move        | Confirm execution mode, robot IP, TCP port`30002`, and the server's connection message. |
-| Voice is ignored                | Begin with`robot`, use an accepted phrase, check microphone and Internet access.        |
-| Face is always denied           | Check the configured path, one visible reference face, camera index, and lighting.        |
