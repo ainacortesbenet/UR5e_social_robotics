@@ -11,7 +11,7 @@ This document describes how to install the `face_recognition` library and its ma
 When installing the facial-recognition requirements with:
 
 ```powershell
-python -m pip install -r requirements_face.txt
+python -m pip install -r lib/requirements_face.txt
 ```
 
 the process failed while compiling `dlib` and displayed errors similar to:
@@ -57,7 +57,7 @@ python -c "import sys; print(sys.executable)"
 The executable path must end in `.venv-win\Scripts\python.exe`. Then run the installation:
 
 ```powershell
-python -m pip install -r requirements_face.txt
+python -m pip install -r lib/requirements_face.txt
 ```
 
 `pip` should now be able to compile and install the `dlib` source code successfully.
@@ -85,7 +85,7 @@ $env:TEMP = "C:\t"
 $env:TMP = "C:\t"
 python -c "import tempfile; print(tempfile.gettempdir())"
 python -m pip install --no-cache-dir dlib==20.0.1
-python -m pip install -r requirements_face.txt
+python -m pip install -r lib/requirements_face.txt
 ```
 
 The temporary-directory check must print `C:\t`. The `TEMP` and `TMP`
@@ -112,7 +112,7 @@ On macOS, first try installing the requirements directly. A compatible package m
 
 ```bash
 cd UR5e_social_robotics/Python_sockets_Robotic_project
-python3.12 -m pip install -r requirements_face.txt
+python3.12 -m pip install -r lib/requirements_face.txt
 ```
 
 If this command completes successfully, proceed directly to the [verification step](#4-verify-the-macos-installation). If it fails while building `dlib`, install the compiler and CMake as described below. The official `dlib` build instructions require both a working C++ compiler and CMake.
@@ -156,7 +156,7 @@ From the project directory, run the installation again:
 
 ```bash
 cd UR5e_social_robotics/Python_sockets_Robotic_project
-python3.12 -m pip install -r requirements_face.txt
+python3.12 -m pip install -r lib/requirements_face.txt
 ```
 
 Compiling `dlib` from source can take several minutes, particularly on a laptop. Do not interrupt the command while compilation is still progressing.

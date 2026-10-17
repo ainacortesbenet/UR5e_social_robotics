@@ -31,6 +31,7 @@ The student computer never connects directly to the UR5e. All three client inter
 ## Project files used in this activity
 
 - `config.py`: client/server, robot, execution-mode, voice, and face settings;
+- `lib/requirements*.txt`: core, voice, and face dependencies used to prepare `.venv-win`;
 - `motions/<motion_name>.yaml`: the motion sequence;
 - `ur5e_motion_server.py`: TCP server running on the teacher's computer;
     - Imports: `ur5e_robot_controller.py`: executes motions in RoboDK and/or on the real robot.
@@ -53,7 +54,7 @@ py -3.10 -m venv .venv-win
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv-win\Scripts\Activate.ps1
 python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r requirements.txt
+python -m pip install -r lib/requirements.txt
 ```
 
 After activation, `python` is the interpreter from `.venv-win`
@@ -247,10 +248,10 @@ Install the optional dependencies:
 cd UR5e_social_robotics/Python_sockets_Robotic_project
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv-win\Scripts\Activate.ps1
-python -m pip install -r requirements_voice.txt
+python -m pip install -r lib/requirements_voice.txt
 ```
 
-`requirements_voice.txt` contains the Python packages and is used on Windows, macOS, and Ubuntu. Some operating systems also need native audio packages, which cannot be installed by `pip` and must not be added to this requirements file.
+`lib/requirements_voice.txt` contains the Python packages and is used on Windows, macOS, and Ubuntu. Some operating systems also need native audio packages, which cannot be installed by `pip` and must not be added to this requirements file.
 
 On Windows, the command above is normally sufficient. Allow desktop applications to access the microphone in Windows privacy settings if prompted.
 
@@ -267,7 +268,7 @@ On Ubuntu, install the native microphone and speech components first, then run t
 ```bash
 sudo apt update
 sudo apt install portaudio19-dev espeak-ng
-python -m pip install -r requirements_voice.txt
+python -m pip install -r lib/requirements_voice.txt
 ```
 
 In `config.py`, verify:
@@ -319,7 +320,7 @@ Install the optional dependencies:
 cd UR5e_social_robotics/Python_sockets_Robotic_project
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv-win\Scripts\Activate.ps1
-python -m pip install -r requirements_face.txt
+python -m pip install -r lib/requirements_face.txt
 ```
 
 Installation of `dlib` may require operating-system build tools. Use the prepared laboratory environment if local installation fails. Be sure you have installed `Build Tools` following the guide on:
