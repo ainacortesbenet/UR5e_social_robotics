@@ -10,6 +10,7 @@
   <depend>rclpy</depend>
   <depend>ur5e_interfaces</depend>
   <exec_depend>ur5e_robot_controller</exec_depend>
+  <exec_depend>social_robot_behaviors</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

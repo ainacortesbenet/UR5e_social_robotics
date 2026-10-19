@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>social_robot_perception</name>
+  <version>0.0.1</version>
+  <description>3D human-pose perception for social robot interactions.</description>
+  <maintainer email="puigmanel@gmail.com">Manel Puig</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>launch</depend>
+  <depend>launch_ros</depend>
+  <depend>ament_index_python</depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>python3-pip</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

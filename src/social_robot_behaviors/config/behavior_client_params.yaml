@@ -2,9 +2,9 @@ behavior_manager_client_node:
 
   ros__parameters:
 
-    motions_package: "ur5e_robot_controller"
+    motions_package: "social_robot_behaviors"
 
-    motions_dir: "config"
+    motions_dir: "motions"
 
     motion_launch_package: "ur5e_robot_controller"
 

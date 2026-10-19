@@ -1,0 +1,18 @@
+interaction_manager_node:
+  ros__parameters:
+    intent_topic: /social_intent
+    wrist_topic: /wrist_pose
+    pose_service: /ur5e/run_pose
+    target_frame: table
+    maximum_pose_age_sec: 0.5
+    step_interval_sec: 1.0
+    approach_offset_z_mm: 100.0
+    shake_amplitude_z_mm: 30.0
+    target_rpy_deg: [90.0, 0.0, 0.0]
+    home_xyz_mm: [0.0, -400.0, 500.0]
+    home_seed_joints_deg: [-60.0, -60.0, -100.0, 170.0, -60.0, 0.0]
+    workspace_min_mm: [-600.0, -700.0, 50.0]
+    workspace_max_mm: [600.0, 100.0, 700.0]
+    execute: false
+    max_velocity: 0.05
+    max_acceleration: 0.05

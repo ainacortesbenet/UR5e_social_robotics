@@ -22,6 +22,9 @@ During each session, follow its practical guide step by step:
 - **Session 1:** [Python sockets execution guide](../Python_sockets_Robotic_project/1_Instructions_python_SocialRobotics_Project.md)
 - **Session 2:** [ROS 2 execution guide](../src/1_Instructions_ros2_SocialRobotics_Project.md)
 
+After these sessions, the camera-driven extension is documented in
+[Dynamic handshake with Gemini2 and YOLO Pose](6_Dynamic_Handshake_with_3D_Vision.md).
+
 The architecture documents explain **what the system contains and how it works**. The practical guides explain **which commands to execute and in which order**.
 
 ## Project overview

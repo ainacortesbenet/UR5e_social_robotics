@@ -49,7 +49,7 @@ The Student PC sends only the behavior name. The Teacher PC contains the approve
 | `ur5e_interfaces/srv/RunSequence.srv` | Defines the typed request and response |
 | `ur5e_motion_server` | Validates names and serialises sequence execution |
 | `ur5e_sequence_server.py` | Provides `/ur5e/run_sequence` and locates the YAML |
-| `ur5e_robot_controller/config/*.yaml` | Installed motion definitions |
+| `social_robot_behaviors/motions/*.yaml` | Installed social motion definitions |
 | `ur5e_pose_sequence.py` | Calculates IK and sends joint trajectories |
 | `social_robot_hri` | Optional voice, face and gesture input nodes |
 
@@ -85,7 +85,7 @@ string message
 The server normally reads YAML files from:
 
 ```text
-~/UR5e_social_robotics/install/ur5e_robot_controller/share/ur5e_robot_controller/config/
+~/UR5e_social_robotics/install/social_robot_behaviors/share/social_robot_behaviors/motions/
 ```
 
 ### Pose Sequence Node

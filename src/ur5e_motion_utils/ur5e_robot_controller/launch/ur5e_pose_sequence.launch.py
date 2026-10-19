@@ -18,15 +18,15 @@ def generate_launch_description():
     sequence_file = LaunchConfiguration("sequence_file")
 
     sequence_path = PathJoinSubstitution([
-        FindPackageShare("ur5e_robot_controller"),
-        "config",
+        FindPackageShare("social_robot_behaviors"),
+        "motions",
         sequence_file,
     ])
 
     sequence_arg = DeclareLaunchArgument(
         "sequence_file",
         default_value="handshake.yaml",
-        description="YAML sequence file",
+        description="YAML filename installed by social_robot_behaviors",
     )
 
     static_table_tf = Node(

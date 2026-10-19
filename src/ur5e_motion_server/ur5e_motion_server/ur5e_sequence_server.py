@@ -18,12 +18,12 @@ class UR5eSequenceServer(Node):
         super().__init__("ur5e_sequence_server")
 
         package_share_dir = get_package_share_directory(
-            "ur5e_robot_controller"
+            "social_robot_behaviors"
         )
 
         default_sequences_dir = os.path.join(
             package_share_dir,
-            "config"
+            "motions"
         )
 
         self.declare_parameter(
@@ -167,7 +167,7 @@ class UR5eSequenceServer(Node):
                 "launch",
                 "ur5e_robot_controller",
                 "ur5e_pose_sequence.launch.py",
-                f"sequence_file:={sequence_file}",
+                f"sequence_file:={os.path.basename(sequence_file)}",
             ]
 
             result = subprocess.run(

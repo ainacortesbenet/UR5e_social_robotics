@@ -1,5 +1,7 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, EmitEvent, RegisterEventHandler
+from launch.event_handlers import OnProcessExit
+from launch.events import Shutdown
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
@@ -118,6 +120,13 @@ def generate_launch_description():
         }],
     )
 
+    shutdown_on_pose_exit = RegisterEventHandler(
+        OnProcessExit(
+            target_action=move_to_pose_node,
+            on_exit=[EmitEvent(event=Shutdown(reason="UR5e pose finished"))],
+        )
+    )
+
     return LaunchDescription([
         group_name,
         ik_link,
@@ -137,4 +146,5 @@ def generate_launch_description():
 
         static_table_tf,
         move_to_pose_node,
+        shutdown_on_pose_exit,
     ])

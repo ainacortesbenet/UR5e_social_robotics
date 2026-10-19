@@ -10,8 +10,8 @@ from pathlib import Path
 PROFESSOR_IP = "192.168.0.10"
 PROFESSOR_USER = "student"
 
-LOCAL_FOLDER = "/home/student/UR5e_social_robotics/src/ur5e_motion_utils/ur5e_robot_controller/config/"
-REMOTE_FOLDER = "/home/biorob/UR5e_social_robotics/install/ur5e_robot_controller/share/ur5e_robot_controller/config/"
+LOCAL_FOLDER = "/home/student/UR5e_social_robotics/src/social_robot_behaviors/motions/"
+REMOTE_FOLDER = "/home/biorob/UR5e_social_robotics/install/social_robot_behaviors/share/social_robot_behaviors/motions/"
 
 # -------------------------
 

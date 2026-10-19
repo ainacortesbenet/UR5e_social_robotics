@@ -39,7 +39,7 @@ The student sends only the motion name. The YAML file is installed on the comput
 
 ## Project files used in this activity
 
-- `src/ur5e_motion_utils/ur5e_robot_controller/config/<motion_name>.yaml`: motion sequence;
+- `src/social_robot_behaviors/motions/<motion_name>.yaml`: motion sequence;
 - `src/social_robot_behaviors/social_robot_behaviors/behavior_manager_client_node.py`: receives `/social_behavior` and requests the sequence;
 - `src/ur5e_motion_server/ur5e_motion_server/ur5e_sequence_server.py`: validates the request and launches the sequence;
 - `src/ur5e_motion_utils/ur5e_robot_controller/ur5e_robot_controller/ur5e_pose_sequence.py`: calculates IK and sends each trajectory;
@@ -103,7 +103,7 @@ See `Documentation/1_UR5e_setup.md` for the complete installation, real-robot an
 Use a short lowercase name without spaces, for example `wave`. Copy an existing sequence:
 
 ```bash
-cd ~/UR5e_social_robotics/src/ur5e_motion_utils/ur5e_robot_controller/config
+cd ~/UR5e_social_robotics/src/social_robot_behaviors/motions
 cp handshake.yaml wave.yaml
 ```
 
@@ -250,7 +250,7 @@ ping 192.168.0.20
 Copy the approved `<motion_name>.yaml` to the Teacher PC and build its workspace, or copy it directly to:
 
 ```text
-~/UR5e_social_robotics/install/ur5e_robot_controller/share/ur5e_robot_controller/config/
+~/UR5e_social_robotics/install/social_robot_behaviors/share/social_robot_behaviors/motions/
 ```
 
 The helper `Documentation/Files/Send_motion/send_social_motion.py` performs this copy with `scp`. On the Student PC, open the script:
@@ -264,8 +264,8 @@ Verify these four parameters:
 ```python
 PROFESSOR_IP = "192.168.1.5"
 PROFESSOR_USER = "<teacher_username>"
-LOCAL_FOLDER = "/home/<student_username>/UR5e_social_robotics/src/ur5e_motion_utils/ur5e_robot_controller/config/"
-REMOTE_FOLDER = "/home/<teacher_username>/UR5e_social_robotics/install/ur5e_robot_controller/share/ur5e_robot_controller/config/"
+LOCAL_FOLDER = "/home/<student_username>/UR5e_social_robotics/src/social_robot_behaviors/motions/"
+REMOTE_FOLDER = "/home/<teacher_username>/UR5e_social_robotics/install/social_robot_behaviors/share/social_robot_behaviors/motions/"
 ```
 
 - `PROFESSOR_IP`: Teacher PC address reachable from the Student PC; normally `192.168.1.5` on the classroom network;

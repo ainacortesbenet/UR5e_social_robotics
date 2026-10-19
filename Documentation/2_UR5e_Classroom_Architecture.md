@@ -115,7 +115,7 @@ src/ur5e_motion_utils/ur5e_robot_controller/
 src/ur5e_interfaces/
 ```
 
-The Behavior Manager Client subscribes to `/social_behavior` and calls `/ur5e/run_sequence`. The request contains the logical behavior name, for example `handshake`. The sequence server resolves that name to `handshake.yaml` in the installed `ur5e_robot_controller/config/` directory.
+The Behavior Manager Client subscribes to `/social_behavior` and calls `/ur5e/run_sequence`. The request contains the logical behavior name, for example `handshake`. The sequence server resolves that name to `handshake.yaml` in the installed `social_robot_behaviors/motions/` directory.
 
 To execute a sequence directly, use the launch file that exists in the `ur5e_robot_controller` package:
 

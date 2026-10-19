@@ -11,7 +11,7 @@ class UR5ePoseClient(Node):
     def __init__(self):
         super().__init__("ur5e_pose_client")
 
-        self.declare_parameter("service_name", "/ur5e_pose_server")
+        self.declare_parameter("service_name", "/ur5e/run_pose")
         self.declare_parameter("target_xyz", [0.0, -400.0, 500.0])
         self.declare_parameter("target_rpy", [90.0, 0.0, 0.0])
         self.declare_parameter("seed_from_joint_states", True)
