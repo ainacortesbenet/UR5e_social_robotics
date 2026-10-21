@@ -1,0 +1,12 @@
+pose_3d_node:
+  ros__parameters:
+    color_topic: /camera/color/image_raw
+    depth_topic: /camera/depth/image_raw
+    camera_info_topic: /camera/color/camera_info
+    model_path: yolo11n-pose.pt
+    image_size: 640
+    person_confidence: 0.35
+    keypoint_confidence: 0.35
+    depth_window_radius: 2
+    max_depth_age_sec: 0.25
+    wrist_side: right

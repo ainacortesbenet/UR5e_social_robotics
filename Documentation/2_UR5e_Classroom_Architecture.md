@@ -115,7 +115,7 @@ src/ur5e_motion_utils/ur5e_robot_controller/
 src/ur5e_interfaces/
 ```
 
-The Behavior Manager Client subscribes to `/social_behavior` and calls `/ur5e/run_sequence`. The request contains the logical behavior name, for example `handshake`. The sequence server resolves that name to `handshake.yaml` in the installed `ur5e_robot_controller/config/` directory.
+The Behavior Manager Client subscribes to `/social_behavior` and calls `/ur5e/run_sequence`. The request contains the logical behavior name, for example `handshake`. The sequence server resolves that name to `handshake.yaml` in the installed `social_robot_behaviors/motions/` directory.
 
 To execute a sequence directly, use the launch file that exists in the `ur5e_robot_controller` package:
 
@@ -211,6 +211,6 @@ This progression introduces networking, modular software, ROS 2 nodes, services,
 ## Related documents
 
 - [UR5e setup](1_UR5e_setup.md): operating-system, driver, network, and robot setup.
-- [Python sockets architecture](3_Python_Sockets_Architecture.md): components, configuration, and local verification.
-- [ROS 2 architecture](4_ROS2_Architecture.md): client, server, motion files, and verification.
-- [Social robotics project](5_ROS2_SocialRobotics_Project.md): complete multi-session project.
+- [Python sockets architecture](3_Python_Sockets_Architecture.md): components, TCP communication, YAML and URScript flow.
+- [ROS 2 architecture](4_ROS2_Architecture.md): nodes, topics, services, actions and sequence execution.
+- [Social robotics project](5_SocialRobotics_Project.md): sessions, responsibilities, safety and deliverables.

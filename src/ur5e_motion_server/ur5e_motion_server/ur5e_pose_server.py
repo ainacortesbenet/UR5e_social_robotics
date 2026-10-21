@@ -18,6 +18,7 @@ class UR5ePoseServer(Node):
 
         self.launch_package = self.get_parameter("launch_package").value
         self.launch_file = self.get_parameter("launch_file").value
+        self.busy = False
 
         self.srv = self.create_service(
             RunPose,
@@ -32,6 +33,13 @@ class UR5ePoseServer(Node):
         )
 
     def run_pose_callback(self, request, response):
+
+        if self.busy:
+            response.success = False
+            response.message = "Robot busy."
+            return response
+
+        self.busy = True
 
         try:
             target_xyz = [float(v) for v in request.target_xyz_mm]
@@ -56,14 +64,21 @@ class UR5ePoseServer(Node):
             self.get_logger().info("Executing pose using launch command:")
             self.get_logger().info(" ".join(cmd))
 
-            subprocess.Popen(cmd)
+            result = subprocess.run(cmd, check=False)
 
-            response.success = True
-            response.message = "Pose launch started."
+            response.success = result.returncode == 0
+            response.message = (
+                "Pose execution completed."
+                if response.success
+                else f"Pose launch failed with code {result.returncode}."
+            )
 
         except Exception as e:
             response.success = False
             response.message = f"Exception: {e}"
+
+        finally:
+            self.busy = False
 
         return response
 

@@ -38,8 +38,11 @@ class RobotController:
         time.sleep(2)
         self.load_station()
         self.load_items()
-        self.connect_robot()
-        self.set_tcp_from_robodk()
+        if EXECUTION_MODE in ("real_only", "simulation_and_real"):
+            self.connect_robot()
+            self.set_tcp_from_robodk()
+        else:
+            print("Simulation-only mode: no connection to the real UR5e will be attempted.")
 
     def load_station(self):
         if not RDK_FILE.exists():

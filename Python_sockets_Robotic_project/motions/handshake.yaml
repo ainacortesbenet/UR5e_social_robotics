@@ -20,7 +20,7 @@ steps:
 
   - name: handshake_forward
     motion: moveL
-    target_xyz_mm: [-300, -200, 200]
+    target_xyz_mm: [-300, -300, 200]
     target_rpy_deg: [90, 0, 0]
     acceleration: 1.2
     velocity: 0.10
@@ -29,7 +29,7 @@ steps:
 
   - name: retreat
     motion: moveL
-    target_xyz_mm: [-300, -200, 300]
+    target_xyz_mm: [-300, -300, 300]
     target_rpy_deg: [90, 0, 0]
     acceleration: 1.2
     velocity: 0.15

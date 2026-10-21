@@ -1,0 +1,9 @@
+gesture_interpreter_node:
+  ros__parameters:
+    input_topic: /person_pose_3d
+    output_topic: /social_intent
+    wrist_side: right
+    minimum_arm_extension_m: 0.30
+    minimum_forward_reach_m: 0.10
+    required_frames: 8
+    cooldown_sec: 5.0

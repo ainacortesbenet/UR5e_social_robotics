@@ -26,6 +26,10 @@ setup(
             os.path.join("share", package_name, "config"),
             glob("config/*.yaml"),
         ),
+        (
+            os.path.join("share", package_name, "motions"),
+            glob("motions/*.yaml"),
+        ),
     ],
 
     install_requires=["setuptools"],
@@ -38,6 +42,7 @@ setup(
     entry_points={
         "console_scripts": [
             "behavior_manager_client_node = social_robot_behaviors.behavior_manager_client_node:main",
+            "interaction_manager_node = social_robot_behaviors.interaction_manager_node:main",
             'ur5e_pose_client = social_robot_behaviors.ur5e_pose_client:main',
             'ur5e_fkine_client = social_robot_behaviors.ur5e_fkine_client:main',
         ],

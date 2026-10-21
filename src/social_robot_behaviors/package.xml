@@ -18,9 +18,15 @@
 
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>ur5e_interfaces</depend>
   <depend>launch</depend>
   <depend>launch_ros</depend>
   <depend>ament_index_python</depend>
+  <exec_depend>social_robot_perception</exec_depend>
+  <exec_depend>social_robot_hri</exec_depend>
   <exec_depend>python3</exec_depend>
 
   <export>
