@@ -35,6 +35,7 @@ setup(
     entry_points={
         "console_scripts": [
             "pose_3d_node = social_robot_perception.pose_3d_node:main",
+            "camera_table_tf_node = social_robot_perception.camera_table_tf_node:main",
         ],
     },
 )

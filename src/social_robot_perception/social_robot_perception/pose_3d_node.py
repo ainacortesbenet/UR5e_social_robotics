@@ -8,6 +8,7 @@ import rclpy
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Pose, PoseArray, PoseStamped
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import CameraInfo, Image
 from ultralytics import YOLO
 
@@ -28,6 +29,7 @@ class Pose3DNode(Node):
         self.declare_parameter(
             "camera_info_topic", "/camera/color/camera_info"
         )
+        self.declare_parameter("camera_frame", "camera_color_optical_frame")
         self.declare_parameter("model_path", "yolo11n-pose.pt")
         self.declare_parameter("image_size", 640)
         self.declare_parameter("person_confidence", 0.35)
@@ -55,25 +57,31 @@ class Pose3DNode(Node):
             Image,
             self.get_parameter("depth_topic").value,
             self.depth_callback,
-            10,
+            qos_profile_sensor_data,
         )
         self.create_subscription(
             CameraInfo,
             self.get_parameter("camera_info_topic").value,
             self.camera_info_callback,
-            10,
+            qos_profile_sensor_data,
         )
         self.create_subscription(
             Image,
             self.get_parameter("color_topic").value,
             self.color_callback,
-            10,
+            qos_profile_sensor_data,
         )
 
         self.get_logger().info("3D YOLO Pose node started.")
 
     def camera_info_callback(self, msg: CameraInfo):
         self.camera_info = msg
+        configured_frame = self.get_parameter("camera_frame").value
+        if configured_frame and msg.header.frame_id != configured_frame:
+            self.get_logger().warning(
+                "CameraInfo frame '%s' differs from configured camera_frame '%s'"
+                % (msg.header.frame_id, configured_frame)
+            )
 
     def depth_callback(self, msg: Image):
         try:
@@ -167,7 +175,7 @@ class Pose3DNode(Node):
 
         pose_array = PoseArray()
         pose_array.header = msg.header
-        pose_array.header.frame_id = self.camera_info.header.frame_id
+        pose_array.header.frame_id = self.get_parameter("camera_frame").value
 
         for index in range(COCO_KEYPOINT_COUNT):
             confidence = float(confidences[index])

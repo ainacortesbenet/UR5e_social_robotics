@@ -5,6 +5,9 @@ SHELL ["/bin/bash", "-c"]
 # Avoid transient APT download failures
 RUN echo 'Acquire::Retries "6";' > /etc/apt/apt.conf.d/80-retries
 
+# Use a more stable Ubuntu mirror in case archive.ubuntu.com is briefly out of sync
+RUN sed -i 's#http://archive.ubuntu.com/ubuntu#http://us.archive.ubuntu.com/ubuntu#g' /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null || true
+
 # Fix expired ROS 2 GPG key (avoid GPG errors in apt)
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
     -o /usr/share/keyrings/ros2-latest-archive-keyring.gpg
@@ -12,7 +15,7 @@ RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
 # ============================================================================
 # Base system tools + X11/OpenGL support
 # ============================================================================
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -o Acquire::Retries=6 --allow-releaseinfo-change && apt-get install -y --no-install-recommends \
     x11-apps \
     libgl1-mesa-glx \
     libgl1-mesa-dri \
@@ -34,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-venv \
     portaudio19-dev \
     espeak-ng \
+    libasound2-dev \
     unzip \
     git \
     wget \
@@ -50,7 +54,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ============================================================================
 # General ROS 2 extra tools
 # ============================================================================
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -o Acquire::Retries=6 --allow-releaseinfo-change && apt-get install -y --no-install-recommends \
     ros-humble-rviz2 \
     ros-humble-joint-state-publisher \
     ros-humble-joint-state-publisher-gui \
@@ -64,7 +68,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Gazebo Classic + Nav2 + Cartographer
 # NOTE: libgazebo-dev removed unless you really need to compile Gazebo plugins
 # ============================================================================
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -o Acquire::Retries=6 --allow-releaseinfo-change && apt-get install -y --no-install-recommends \
     gazebo \
     ros-humble-gazebo-ros-pkgs \
     ros-humble-gazebo-plugins \
@@ -77,7 +81,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ============================================================================
 # MoveIt 2 + Universal Robots + ros2_control
 # ============================================================================
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -o Acquire::Retries=6 --allow-releaseinfo-change && apt-get install -y --no-install-recommends \
     ros-humble-moveit \
     ros-humble-moveit-visual-tools \
     ros-humble-moveit-servo \
@@ -102,14 +106,14 @@ RUN set -eux; \
     rm -f microsoft.gpg; \
     printf "Types: deb\nURIs: https://packages.microsoft.com/repos/code\nSuites: stable\nComponents: main\nArchitectures: amd64\nSigned-By: /usr/share/keyrings/microsoft.gpg\n" \
       > /etc/apt/sources.list.d/vscode.sources; \
-    apt-get update; \
+    apt-get update -o Acquire::Retries=6 --allow-releaseinfo-change; \
     apt-get install -y --no-install-recommends code; \
     rm -rf /var/lib/apt/lists/*
 
 # ============================================================================
 # Orbbec Gemini 2 camera support (ROS 2 Humble binary driver)
 # ============================================================================
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -o Acquire::Retries=6 --allow-releaseinfo-change && apt-get install -y --no-install-recommends \
     ros-humble-orbbec-camera \
     ros-humble-orbbec-description \
     ros-humble-image-transport \
@@ -128,7 +132,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Intel RealSense ROS 2 wrapper (binary)
 # Keep this separate from librealsense compilation for easier debugging
 # ============================================================================
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -o Acquire::Retries=6 --allow-releaseinfo-change && apt-get install -y --no-install-recommends \
     ros-humble-realsense2-camera \
     ros-humble-realsense2-description \
     ros-humble-image-transport \

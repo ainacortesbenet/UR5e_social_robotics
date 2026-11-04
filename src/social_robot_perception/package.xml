@@ -14,6 +14,7 @@
   <depend>launch</depend>
   <depend>launch_ros</depend>
   <depend>ament_index_python</depend>
+  <depend>tf2_ros</depend>
   <exec_depend>cv_bridge</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-opencv</exec_depend>

@@ -23,6 +23,15 @@ def generate_launch_description():
         ),
         Node(
             package="social_robot_perception",
+            executable="camera_table_tf_node",
+            name="camera_table_tf_node",
+            output="screen",
+            parameters=[os.path.join(
+                perception_dir, "config", "pose_3d_params.yaml"
+            )],
+        ),
+        Node(
+            package="social_robot_perception",
             executable="pose_3d_node",
             name="pose_3d_node",
             output="screen",

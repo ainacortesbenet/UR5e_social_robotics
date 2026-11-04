@@ -3,6 +3,7 @@ pose_3d_node:
     color_topic: /camera/color/image_raw
     depth_topic: /camera/depth/image_raw
     camera_info_topic: /camera/color/camera_info
+    camera_frame: camera_color_optical_frame
     model_path: yolo11n-pose.pt
     image_size: 640
     person_confidence: 0.35
@@ -10,3 +11,13 @@ pose_3d_node:
     depth_window_radius: 2
     max_depth_age_sec: 0.25
     wrist_side: right
+
+camera_table_tf_node:
+  ros__parameters:
+    # Pose of camera_frame expressed in the UR5e table frame: table -> camera.
+    # Measure these values during calibration; keep disabled until then.
+    enabled: false
+    parent_frame: table
+    child_frame: camera_color_optical_frame
+    translation_m: [0.0, 0.0, 0.0]
+    rpy_rad: [0.0, 0.0, 0.0]

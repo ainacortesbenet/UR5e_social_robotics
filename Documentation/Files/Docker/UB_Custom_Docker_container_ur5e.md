@@ -95,6 +95,11 @@ In Host VScode you can `attach VScode`.
     ```
 - The repository is mounted at `/root/UR5e_social_robotics`, and
   `.venv-humble` is stored inside that mounted repository.
+- You have to install `.venv-humble` first time you open the container
+    ```bash
+    cd /root/UR5e_social_robotics
+    python3 -m venv --system-site-packages .venv-humble
+    ```
 - Verify in container **.bashrc** to have:
     ```bash
     # ROS 2 Humble

@@ -53,6 +53,9 @@ class InteractionManagerNode(Node):
         self.pose_client = self.create_client(
             RunPose, self.get_parameter("pose_service").value
         )
+        self.handshake_target_publisher = self.create_publisher(
+            PoseStamped, "/handshake_target", 10
+        )
 
         self.create_subscription(
             PoseStamped,
@@ -134,6 +137,10 @@ class InteractionManagerNode(Node):
         target_pose = self.transform_wrist_to_target()
         if target_pose is None:
             return
+
+        # This first version snapshots the wrist at the handshake offer. It
+        # intentionally does not track a moving hand during the sequence.
+        self.handshake_target_publisher.publish(target_pose)
 
         target = [
             1000.0 * target_pose.pose.position.x,
