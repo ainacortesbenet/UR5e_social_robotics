@@ -12,7 +12,9 @@ services:
    
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - ROS_DOMAIN_ID=5 # ⚠️ numero del grup/robot (1,2,3,4)
+      - ROS_DOMAIN_ID=0 # Base value; select Student 1–4 by exporting its domain in each Teacher terminal
+      - ROS_LOCALHOST_ONLY=0
+      - CYCLONEDDS_URI=file:///root/UR5e_social_robotics/Documentation/Files/Docker/cyclonedds_teacher_multicast.xml
       # X11 / rendering
       - DISPLAY=${DISPLAY} # Ubuntu
       #- DISPLAY=host.docker.internal:0.0 # Windows

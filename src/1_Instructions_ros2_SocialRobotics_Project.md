@@ -63,38 +63,40 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-### 1.1 Configure `.bashrc` on the Teacher PC and Student PC
+### 1.1 Configure the Student PC and Teacher container
 
-Configure both computers once so that every new terminal automatically loads ROS 2, this workspace and the shared DDS settings. On the **Teacher PC** and the **Student PC**, open `.bashrc`:
-
-```bash
-nano ~/.bashrc
-```
-
-Add these lines at the end of the file on both computers:
+On the **Student PC**, add the following to `~/.bashrc`:
 
 ```bash
 source /opt/ros/humble/setup.bash
 source "$HOME/UR5e_social_robotics/install/setup.bash"
-export ROS_DOMAIN_ID=0
+# Student 1 uses 1; Student 2 uses 2; Student 3 uses 3; Student 4 uses 4.
+export ROS_DOMAIN_ID=1
 export ROS_LOCALHOST_ONLY=0
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ```
 
-Save with `Ctrl+O`, press `Enter`, and exit with `Ctrl+X`. Apply the configuration in the current terminal:
+Apply with `source ~/.bashrc`. Ensure `ros-humble-rmw-cyclonedds-cpp` is
+installed. No student CycloneDDS XML is required for the intended setup.
 
-```bash
-source ~/.bashrc
-```
+On the **Teacher PC**, run these exercises inside the Humble container.
+Compose supplies the ROS variables and teacher XML; do not add permanent
+variable overrides to the container's `.bashrc`.
 
-Verify it on both computers:
+In both environments verify:
 
 ```bash
 echo "$ROS_DISTRO"
 echo "$ROS_DOMAIN_ID"
 echo "$ROS_LOCALHOST_ONLY"
+echo "$RMW_IMPLEMENTATION"
 ```
 
-The expected values are `humble`, `0`, and `0`. From this point onward, the commands in this guide assume that `.bashrc` is configured correctly; the `source` and `export` commands are not repeated in every terminal.
+Expect `humble`, the Student PC domain (`1`, `2`, `3` or `4`), `0`, and
+`rmw_cyclonedds_cpp`. In every Teacher container terminal, select the domain
+of the Student PC being tested before launching nodes. For example, to test
+Student 1: `ros2 daemon stop && export ROS_DOMAIN_ID=1`. Details are in the
+[Classroom architecture](../Documentation/2_UR5e_Classroom_Architecture.md).
 
 See `Documentation/1_UR5e_setup.md` for the complete installation, real-robot and optional HRI environment setup.
 
@@ -211,7 +213,9 @@ ros2 interface show ur5e_interfaces/srv/RunSequence
 
 The Teacher PC runs the sequence server, MoveIt 2 and the robot driver. The Student PC runs the Behavior Manager and command interface.
 
-Connect both computers to the classroom network. The `.bashrc` configured in section 1.1 ensures that both use the same ROS domain and allow communication with remote ROS 2 nodes.
+Connect both computers to the classroom network. Use the Student settings and
+Teacher Compose environment described in section 1.1, with the matching
+Student domain (`1`, `2`, `3` or `4`) and remote discovery enabled.
 
 The classroom network normally uses:
 
@@ -398,15 +402,3 @@ Before connecting the Behavior Manager or robot, verify with `ros2 topic echo /s
 - a non-matching face, missing image or unavailable camera publishes no motion.
 
 Repeat the complete chain with fake hardware. Face matching is a classroom demonstration, not secure biometric authentication or a robot safety system.
-
-## Final safety checklist
-
-Before a real execution, confirm:
-
-- [ ] the YAML was tested completely with fake hardware;
-- [ ] all IK and trajectory steps completed without errors;
-- [ ] initial, intermediate and final poses are safe;
-- [ ] the installed YAML on the Teacher PC is the approved version;
-- [ ] TCP, payload and External Control are configured correctly;
-- [ ] the workspace is clear and robot speed is reduced;
-- [ ] the instructor is supervising and the emergency stop is accessible.

@@ -152,6 +152,8 @@ Stop the server with `Ctrl+C` when finished.
 
 ### 3.1 Review configuration parameters
 
+The common network and verification procedure are defined in
+[Classroom architecture](../Documentation/2_UR5e_Classroom_Architecture.md).
 The classroom router uses the `192.168.1.0/24` network:
 
 - the teacher PC always uses `192.168.1.5`;

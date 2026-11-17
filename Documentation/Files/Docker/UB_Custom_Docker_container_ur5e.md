@@ -2,6 +2,31 @@
 
 We have designed a University of Barcelona custom Docker-based ROS 2 Humble environment to simplify student access to ROS 2 and ensure platform-independent workflows in robotics courses.
 
+## Teacher networking and ROS domain
+
+The shared configuration is defined in
+[Classroom architecture](../../2_UR5e_Classroom_Architecture.md). Before starting
+Compose, verify the bind-mount path and both host interfaces: classroom
+`192.168.1.5/24`, robot Ethernet `192.168.0.10/24` (UR5e `192.168.0.20`).
+The teacher CycloneDDS XML must select the classroom address `192.168.1.5`.
+This classroom workflow uses the Linux host-network configuration.
+
+Compose supplies domain `0`, CycloneDDS, the XML URI and remote discovery
+settings. Do not add conflicting ROS variable exports to the container's
+`.bashrc`. After changing Compose environment values, apply them with
+`docker compose up -d` and open new container terminals.
+
+To connect to Student 2, run inside each participating Teacher container terminal:
+
+```bash
+ros2 daemon stop
+export ROS_DOMAIN_ID=2  # choose 1, 2, 3 or 4 to match the selected Student PC
+```
+
+Restart participating nodes after selecting the domain and match it on the
+selected Student PC. The override affects only that terminal and future child
+processes; new container terminals still use Compose default `0`.
+
 ## Python environment with an Ubuntu 24.04 host
 
 In this scenario Ubuntu 24.04 is only the Docker host. ROS 2 nodes, voice and

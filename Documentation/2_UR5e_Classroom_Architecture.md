@@ -28,25 +28,47 @@ Student PC 4 ─┘
 
 Only the Teacher PC runs the robot driver, MoveIt 2, trajectory controllers, and the motion execution server. Student PCs run clients or publishers that request prepared behaviors.
 
-Use the actual network values configured for the laboratory. The examples below use placeholders:
+The same physical network supports both sessions. The Teacher PC has two
+independent interfaces; students do not need direct access to the robot subnet.
 
-```text
-ROBOT_IP=<UR5E_IP>
-TEACHER_PC_IP=<TEACHER_PC_IP>
-STUDENT_PC_IP=<STUDENT_PC_IP>
-```
+| Device | Interface | Address |
+|---|---|---|
+| Teacher PC | Classroom LAN | `192.168.1.5/24` |
+| Teacher PC | Robot Ethernet | `192.168.0.10/24` |
+| UR5e | Robot Ethernet | `192.168.0.20/24` |
+| Student PC4 (example) | Classroom LAN | `192.168.1.45/24` |
+
+Confirm student addresses with the instructor. The existing classroom convention
+uses `192.168.1.x5`, where `x` is the group number (1–4).
+
+| Setting | Python sockets | ROS 2 |
+|---|---|---|
+| Student environment | Windows or Ubuntu with Python | Ubuntu 22.04 and Humble |
+| Communication | TCP to `192.168.1.5:5000` | DDS topics and services |
+| ROS domain | Not used | Default `0` for all participants |
+| Teacher software | Python motion server on the host | Humble inside Docker |
+| Robot execution | URScript, TCP `30002` | UR driver and controllers |
+
+Students send requests through the communication layer; the Teacher PC runs
+the robot execution layer. The Python server does not need Docker to share
+this topology. Use the two control systems alternately, stopping the previous
+system before switching.
 
 ## Teacher PC responsibilities
 
-The Teacher PC is the central control and safety point. It:
+The Teacher PC is the supervised execution point. It:
 
 - communicates directly with the UR5e;
 - runs the UR driver and, for ROS 2, MoveIt 2;
 - receives requests from student applications;
 - validates behavior names, YAML files, poses, and motion parameters;
-- prevents concurrent or unauthorized executions;
+- serialises requests within the active motion server;
 - supervises the first execution of every student motion;
 - stops the experiment when a safety problem is detected.
+
+Server coordination is not a complete access-control or robot safety system.
+Other nodes in the same domain may reach exposed controllers directly. A ROS
+domain groups discovery; it is not an authorization boundary.
 
 Student PCs must not run the real robot driver, MoveIt 2, RTDE communication, or trajectory controllers for the classroom robot.
 
@@ -138,41 +160,6 @@ The ROS 2 motion format is different from the Python sockets format. The same po
 8. Run the first real-robot execution under instructor supervision.
 9. Compare the simulated and real executions and record any difference.
 
-## Fake hardware and home testing
-
-ROS 2 motions must be tested with the fake UR5e before they are tested on the real robot:
-
-```bash
-cd ~/UR5e_social_robotics
-colcon build --symlink-install
-source install/setup.bash
-```
-
-Start the fake driver and MoveIt 2 in separate terminals:
-
-```bash
-ros2 launch ur_robot_driver ur_control.launch.py \
-  ur_type:=ur5e \
-  robot_ip:=<UR5E_IP> \
-  use_fake_hardware:=true \
-  launch_rviz:=false
-```
-
-```bash
-ros2 launch ur_moveit_config ur_moveit.launch.py \
-  ur_type:=ur5e \
-  launch_rviz:=true
-```
-
-Then test a sequence:
-
-```bash
-ros2 launch ur5e_robot_controller ur5e_pose_sequence.launch.py \
-  sequence_file:=handshake.yaml
-```
-
-The IP argument is retained by the launch configuration, but fake hardware does not connect to a physical robot.
-
 ## Safety and instructor validation
 
 Every motion must:
@@ -210,6 +197,8 @@ This progression introduces networking, modular software, ROS 2 nodes, services,
 
 ## Related documents
 
+- [Classroom DDS network test](Files/Docker/Classroom_DDS_Network_Test.md): multicast,
+  unicast, fake-hardware and real-robot verification sequence.
 - [UR5e setup](1_UR5e_setup.md): operating-system, driver, network, and robot setup.
 - [Python sockets architecture](3_Python_Sockets_Architecture.md): components, TCP communication, YAML and URScript flow.
 - [ROS 2 architecture](4_ROS2_Architecture.md): nodes, topics, services, actions and sequence execution.

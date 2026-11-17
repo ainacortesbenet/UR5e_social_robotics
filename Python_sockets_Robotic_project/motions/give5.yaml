@@ -5,7 +5,7 @@ steps:
     motion: moveJ
     joints_deg: [-60, -65, -100, 170, -60, 0]
     acceleration: 1.2
-    velocity: 0.5
+    velocity: 0.10
     time: 4.0
     blend: 0.0
 
@@ -14,7 +14,7 @@ steps:
     target_xyz_mm: [-400, -250, 500]
     target_rpy_deg: [0, 0, 90]
     acceleration: 1.2
-    velocity: 0.15
+    velocity: 0.10
     time: 3.0
     blend: 0.0
 
@@ -32,14 +32,14 @@ steps:
     target_xyz_mm: [-400, -250, 500]
     target_rpy_deg: [0, 0, 90]
     acceleration: 1.2
-    velocity: 0.15
-    time: -1
+    velocity: 0.10
+    time: 1.0
     blend: 0.0
 
   - name: init
     motion: moveJ
     joints_deg: [-60, -65, -100, 170, -60, 0]
     acceleration: 1.2
-    velocity: 0.5
-    time: 4.0
+    velocity: 0.10
+    time: 3.0
     blend: 0.0

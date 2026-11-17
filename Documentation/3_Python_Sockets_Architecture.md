@@ -2,6 +2,12 @@
 
 This document explains the architecture used in the first project session. For installation and execution commands, follow the [Python sockets execution guide](../Python_sockets_Robotic_project/1_Instructions_python_SocialRobotics_Project.md).
 
+The shared physical network is defined in
+[Classroom architecture](2_UR5e_Classroom_Architecture.md). The teacher server
+binds to `0.0.0.0:5000`; classroom clients use `SERVER_IP = "192.168.1.5"`
+and `SERVER_PORT = 5000`. `0.0.0.0` is a bind address, not a client destination.
+For a local test on one computer, clients use `127.0.0.1`.
+
 ## Learning objectives
 
 Students should be able to:

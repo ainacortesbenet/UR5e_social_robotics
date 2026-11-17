@@ -31,18 +31,30 @@ camera-driven snapshot sequence is implemented by the interaction manager and
 does not generate a YAML file. It moves the UR5e TCP only; this version does
 not command a gripper.
 
+Use [Classroom architecture](2_UR5e_Classroom_Architecture.md) for the network
+and select the Student domain (`1`–`4`) in Teacher terminals. For this demonstration, run the camera, perception,
+HRI, interaction manager and robot services on the Teacher PC, inside its
+Humble container when using Docker. Students may inspect topics in the same
+domain. Stop the Python motion server before using the ROS 2 execution stack.
+
 ## 1. Install and build
+
+Prepare `.venv-humble` following [UR5e setup](1_UR5e_setup.md) or the
+[Docker guide](Files/Docker/UB_Custom_Docker_container_ur5e.md). In Docker,
+create and use this environment inside the container.
+
 
 Install the Gemini2 first if necessary: [Gemini2 installation](Files/Gemini2_installation.md).
 
 YOLO Pose requires Ultralytics:
 
 ```bash
-python3 -m pip install --user ultralytics
 cd ~/UR5e_social_robotics
 source /opt/ros/humble/setup.bash
+source .venv-humble/bin/activate
+python -m pip install ultralytics
 rosdep install --from-paths src --ignore-src -r -y
-colcon build --symlink-install --packages-select \
+.venv-humble/bin/python /usr/bin/colcon build --base-paths src --symlink-install --packages-select \
   ur5e_interfaces ur5e_motion_server social_robot_perception \
   social_robot_hri social_robot_behaviors
 source install/setup.bash
@@ -88,7 +100,7 @@ the calibrated configuration:
 
 ```bash
 cd ~/UR5e_social_robotics
-colcon build --symlink-install --packages-select social_robot_perception
+.venv-humble/bin/python /usr/bin/colcon build --base-paths src --symlink-install --packages-select social_robot_perception
 source install/setup.bash
 ```
 
@@ -98,6 +110,7 @@ Open separate terminals and source the workspace in each one:
 
 ```bash
 source /opt/ros/humble/setup.bash
+source ~/UR5e_social_robotics/.venv-humble/bin/activate
 source ~/UR5e_social_robotics/install/setup.bash
 ```
 
