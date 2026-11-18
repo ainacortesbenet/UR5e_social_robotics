@@ -27,18 +27,9 @@ It moves to a fixed pose; it does not detect or follow a person's hand.
 
 ## Laboratory architecture
 
-The laboratory has four student PCs acting as clients and one teacher PC acting as the server. Only the teacher PC is connected to the UR5e.
-
-```text
-Student PC 1 (client) --+
-Student PC 2 (client) --+
-Student PC 3 (client) --+ --> Teacher PC (server) --> UR5e
-Student PC 4 (client) --+         |                    real hardware
-                                  v
-                           RoboDK or MoveIt 2 / RViz
-```
-
-In the classroom, the teacher PC receives the request, validates and runs the approved motion. Students never connect directly to the physical UR5e. For the **previous activities below**, this architecture is simplified: the client and server run on the same student PC so that each student can test safely in simulation before the laboratory session.
+See the [classroom architecture](2_UR5e_Classroom_Architecture.md)
+for the roles of the Student and Teacher PCs. The preparatory activities below
+run both roles on one computer in simulation.
 
 ## From an idea to a tested movement
 
@@ -60,15 +51,9 @@ In the classroom, the teacher PC receives the request, validates and runs the ap
 
 In the comparison, explain what the student sends in each version, where the server finds the YAML file, how access to the real robot is managed, how success or errors are reported, and what ROS 2 provides compared with the custom TCP protocol.
 
-## Safety comes first
-
-- Test every movement in simulation first.
-- Keep the work area clear and use slow, smooth movements.
-- Check the start, middle, and end poses.
-- Never run an unapproved movement on the real UR5e.
-- A real-robot test needs teacher approval and supervision.
-
-The ROS 2 pose sequence uses inverse kinematics to find joint targets. A successful IK result does not by itself prove that the full path is collision-free.
+Follow the [shared testing and safety procedure](2_UR5e_Classroom_Architecture.md#shared-testing-procedure)
+for laboratory work. A successful ROS 2 inverse kinematics result gives a
+joint target. Check the path between targets for collisions.
 
 # Guided practical activity: previous simulation before each session
 
@@ -152,15 +137,8 @@ The server must receive each YAML, RoboDK must show each complete motion, and th
 
 ![](./Images/Presentation/simulation_win_python.png) 
 
-Next, create `motions/<motion_name>.yaml` from `motions/handshake.yaml` or `motions/give5.yaml`. It must represent the social motion you designed in the first laboratory session. Register the same lowercase name in `MOTIONS` in `behavior_manager_client.py`, for example:
-
-```python
-MOTIONS = {
-    "handshake": "motions/handshake.yaml",
-    "give5": "motions/give5.yaml",
-    "wave": "motions/wave.yaml",
-}
-```
+Create and register your motion using
+[the YAML and registration steps in Session 1](3a_Python_Sockets_Session.md#define-your-movement).
 
 Then simulate your own motion:
 
@@ -268,21 +246,19 @@ ros2 topic pub --once /social_behavior std_msgs/msg/String \
 
 ![](./Images/Presentation/simulation_ubuntu_ros2.png) 
 
-Both supplied motions must run in RViz. Next, create `src/social_robot_behaviors/motions/<motion_name>.yaml` by copying the structure of `handshake.yaml` or `give5.yaml` and translating the social motion from the first laboratory session. For example:
-
-```bash
-cd ~/UR5e_social_robotics/src/social_robot_behaviors/motions
-cp handshake.yaml wave.yaml
-```
-Now modify the yaml file with the desired poses to describe the social movement, and compile again:
+Both supplied motions must run in RViz. Follow the
+[Session 2 YAML guide](4a_ROS2_Session.md#define-your-social-movement) to create
+your own motion. Then build and source the workspace in the terminals that run
+the sequence server and client. Restart the server if the install space was
+refreshed.
 
 ```bash
 cd ~/UR5e_social_robotics
-colcon build
+colcon build --symlink-install
 source install/setup.bash
 ```
 
-No Python registration is needed for ROS 2: the requested behaviour name must match the YAML filename without `.yaml`. In Terminal 5, send your motion:
+In Terminal 5, send your motion:
 
 ```bash
 ros2 topic pub --once /social_behavior std_msgs/msg/String \
@@ -315,12 +291,16 @@ If a node cannot find the others, run `source ~/.bashrc` in that terminal and ch
 
 - **Simulation before hardware:** the same ROS 2 architecture can be tested with fake hardware and then used with the real UR5e under teacher supervision.
 
-## More information
+## Project guides
 
-- [Classroom architecture](2_UR5e_Classroom_Architecture.md)
-- [Python sockets architecture](3_Python_Sockets_Architecture.md)
-- [ROS 2 architecture](4_ROS2_Architecture.md)
-- [Project responsibilities and deliverables](5_SocialRobotics_Project.md)
-- [UR5e setup and Python environment](1_UR5e_setup.md)
-- [ROS 2 practical guide](../src/1_Instructions_ros2_SocialRobotics_Project.md)
-- [Python sockets practical guide](../Python_sockets_Robotic_project/1_Instructions_python_SocialRobotics_Project.md)
+- [2 · Classroom architecture](2_UR5e_Classroom_Architecture.md)
+- [3a · Session 1 with Python sockets](3a_Python_Sockets_Session.md)
+- [3b · Face and voice with Python sockets](3b_Face_and_Voice_Python_Sockets.md)
+- [4a · Session 2 with ROS 2](4a_ROS2_Session.md)
+- [4b · Face and voice HRI with ROS 2](4b_Face_and_Voice_HRI_ROS2_Demo.md)
+- [5 · Gesture HRI with a 3D camera](5_Gesture_HRI_with_YOLO_Pose_and_3D_Camera.md)
+
+## Technical references
+
+- [UR5e ROS 2 setup](Files/References/UR5e_ROS2_Setup.md)
+- [UR5e control and kinematics](Files/References/UR5e_Control_and_Kinematics.md)

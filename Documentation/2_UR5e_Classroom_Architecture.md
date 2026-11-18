@@ -1,23 +1,10 @@
-# UR5e Classroom Architecture
+# UR5e classroom architecture
 
-## Overview
-
-This document defines the classroom architecture used to teach two ways of controlling a UR5e robot:
-
-1. Python TCP sockets and URScript.
-2. ROS 2 and MoveIt 2.
-
-The robot is connected to a dedicated Teacher PC. Student PCs send high-level requests through the local network, while the Teacher PC validates and executes robot motions.
-
-The same client-server idea is used in both stages. The communication technology and motion execution layer change, but the responsibility boundary remains the same.
+The Student PCs are clients. They request social movements over the classroom
+network. The Teacher PC runs the motion service and has the Ethernet connection
+to the UR5e. The instructor supervises execution.
 
 ## Classroom network
-
-The classroom contains:
-
-- one Ubuntu 22.04 Teacher PC connected to the UR5e through Ethernet;
-- several Student PCs connected to the classroom LAN or WiFi;
-- one UR5e robot controlled only by the Teacher PC.
 
 ```text
 Student PC 1 ─┐
@@ -26,180 +13,40 @@ Student PC 3 ─┤
 Student PC 4 ─┘
 ```
 
-Only the Teacher PC runs the robot driver, MoveIt 2, trajectory controllers, and the motion execution server. Student PCs run clients or publishers that request prepared behaviors.
+The Teacher PC has two network interfaces.
 
-The same physical network supports both sessions. The Teacher PC has two
-independent interfaces; students do not need direct access to the robot subnet.
-
-| Device | Interface | Address |
+| Device | Network | Address |
 |---|---|---|
 | Teacher PC | Classroom LAN | `192.168.1.5/24` |
 | Teacher PC | Robot Ethernet | `192.168.0.10/24` |
 | UR5e | Robot Ethernet | `192.168.0.20/24` |
-| Student PC4 (example) | Classroom LAN | `192.168.1.45/24` |
+| Student PCs 1–4 | Classroom LAN | `192.168.1.15/24`, `192.168.1.25/24`, `192.168.1.35/24`, `192.168.1.45/24` |
 
-Confirm student addresses with the instructor. The existing classroom convention
-uses `192.168.1.x5`, where `x` is the group number (1–4).
+## How each session uses the network
 
-| Setting | Python sockets | ROS 2 |
+| Session | Student request | Teacher execution |
 |---|---|---|
-| Student environment | Windows or Ubuntu with Python | Ubuntu 22.04 and Humble |
-| Communication | TCP to `192.168.1.5:5000` | DDS topics and services |
-| ROS domain | Not used | Default `0` for all participants |
-| Teacher software | Python motion server on the host | Humble inside Docker |
-| Robot execution | URScript, TCP `30002` | UR driver and controllers |
+| [Python sockets](3a_Python_Sockets_Session.md) | Send the complete YAML over TCP port `5000` and receive `OK` or `ERROR`. | Simulate in RoboDK or send URScript to the robot on TCP port `30002`. |
+| [ROS 2](4a_ROS2_Session.md) | Publish the motion name on `/social_behavior`. The Behavior Manager calls `/ur5e/run_sequence`. | Load the copied YAML and run it with MoveIt 2 and the UR driver. |
 
-Students send requests through the communication layer; the Teacher PC runs
-the robot execution layer. The Python server does not need Docker to share
-this topology. Use the two control systems alternately, stopping the previous
-system before switching.
+For ROS 2, match the Teacher's `ROS_DOMAIN_ID` to the selected Student PC
+(group 1–4). DDS uses domain-dependent UDP ports. A domain groups discovery,
+and access to real-robot control is reserved for the Teacher PC.
 
-## Teacher PC responsibilities
+## Shared testing procedure
 
-The Teacher PC is the supervised execution point. It:
+Verify these motions in this order:
 
-- communicates directly with the UR5e;
-- runs the UR driver and, for ROS 2, MoveIt 2;
-- receives requests from student applications;
-- validates behavior names, YAML files, poses, and motion parameters;
-- serialises requests within the active motion server;
-- supervises the first execution of every student motion;
-- stops the experiment when a safety problem is detected.
+1. `handshake`;
+2. `give5`;
+3. the new motion prepared at home (`<motion_name>`).
 
-Server coordination is not a complete access-control or robot safety system.
-Other nodes in the same domain may reach exposed controllers directly. A ROS
-domain groups discovery; it is not an authorization boundary.
+First run the three motions in simulation. Then run them on the real UR5e in the same order.
 
-Student PCs must not run the real robot driver, MoveIt 2, RTDE communication, or trajectory controllers for the classroom robot.
+Before a real test, the instructor reviews every pose and trajectory for
+workspace, collision and joint-limit risks. Confirm the TCP and payload, keep
+the workspace clear and the emergency stop accessible, and run at reduced
+speed with instructor approval. Stop if the real motion differs from simulation.
 
-## Stage 1: Python sockets and URScript
-
-The first stage introduces low-level industrial robot communication.
-
-```text
-Student application
-        │ TCP socket
-        ▼
-Teacher PC: ur5e_motion_server.py
-        ▼
-ur5e_robot_controller.py
-        │ URScript
-        ▼
-UR5e
-```
-
-The Student PC runs `motion_client.py` from `Python_sockets_Robotic_project/`. The client resolves a behavior name locally, validates the corresponding file, and sends the complete YAML sequence to the server. Optional voice and face interfaces select behavior names through the same communication layer.
-
-The Teacher PC starts `ur5e_motion_server.py`, which imports `ur5e_robot_controller.py`. The server parses the received YAML, executes it through the controller, and permits only one motion at a time.
-
-The Python motion format uses fields such as:
-
-```yaml
-sequence_name: wave
-
-steps:
-  - name: approach
-    motion: moveL
-    target_xyz_mm: [-300, -300, 300]
-    target_rpy_deg: [90, 0, 0]
-    velocity: 0.10
-    acceleration: 0.50
-    time: 3.0
-    blend: 0.0
-```
-
-The client and server configuration uses TCP port `5000`. During local development, use `127.0.0.1`; in the classroom, the client uses the Teacher PC address and the server listens on `0.0.0.0`.
-
-## Stage 2: ROS 2 and MoveIt 2
-
-The second stage replaces the custom TCP protocol with ROS 2 communication and direct URScript execution with MoveIt 2 and the UR driver.
-
-```text
-Student command publisher
-        │ /social_behavior
-        ▼
-Behavior Manager Client
-        │ /ur5e/run_sequence
-        ▼
-UR5e Sequence Server
-        ▼
-MoveIt 2 and UR driver
-        ▼
-UR5e
-```
-
-The ROS 2 components are located in these packages:
-
-```text
-src/social_robot_behaviors/
-src/ur5e_motion_server/
-src/ur5e_motion_utils/ur5e_robot_controller/
-src/ur5e_interfaces/
-```
-
-The Behavior Manager Client subscribes to `/social_behavior` and calls `/ur5e/run_sequence`. The request contains the logical behavior name, for example `handshake`. The sequence server resolves that name to `handshake.yaml` in the installed `social_robot_behaviors/motions/` directory.
-
-To execute a sequence directly, use the launch file that exists in the `ur5e_robot_controller` package:
-
-```bash
-ros2 launch ur5e_robot_controller ur5e_pose_sequence.launch.py \
-  sequence_file:=handshake.yaml
-```
-
-The ROS 2 motion format is different from the Python sockets format. The same poses can be reused, but the YAML file must be adapted to the selected controller.
-
-## Common classroom workflow
-
-1. Design a social motion in RoboDK or another offline tool.
-2. Choose safe initial, intermediate, and final poses.
-3. Create the YAML file in the format required by the selected stage.
-4. Test the complete motion offline or with fake hardware.
-5. Check the YAML structure, limits, timing, workspace, and collision risk.
-6. Submit the motion to the instructor for review.
-7. Transfer the validated file to the Teacher PC.
-8. Run the first real-robot execution under instructor supervision.
-9. Compare the simulated and real executions and record any difference.
-
-## Safety and instructor validation
-
-Every motion must:
-
-- have a clear social meaning;
-- start and finish in a safe configuration;
-- stay inside the robot workspace;
-- avoid collisions and joint limits;
-- use slow and smooth movements;
-- use validated velocities, accelerations, durations, and blending;
-- be tested with fake hardware or an offline simulator first.
-
-Before a real execution, the instructor must:
-
-1. review the YAML file and its poses;
-2. verify the workspace, collision risk, speed, and acceleration;
-3. confirm that the robot and teach pendant are correctly configured;
-4. authorize the execution;
-5. supervise the first execution at reduced speed.
-
-During every experiment, the workspace must remain clear, the emergency stop must be accessible, and one person must be ready to stop the robot. An unverified YAML file must never be executed on the real robot.
-
-## Educational progression
-
-| Layer | Python sockets and URScript | ROS 2 and MoveIt 2 |
-|---|---|---|
-| Student side | Python client | ROS 2 publisher or client node |
-| Teacher side | TCP motion server | Sequence server and ROS 2 nodes |
-| Communication | TCP socket | ROS 2 topics and services |
-| Motion description | Python sockets YAML | ROS 2 controller YAML |
-| Robot execution | URScript | MoveIt 2 and UR driver |
-| Safety point | Teacher-side validation | Teacher-side validation and supervised execution |
-
-This progression introduces networking, modular software, ROS 2 nodes, services, MoveIt 2, robot drivers, TF, trajectory execution, and human-robot interaction without changing the central safety boundary.
-
-## Related documents
-
-- [Classroom DDS network test](Files/Docker/Classroom_DDS_Network_Test.md): multicast,
-  unicast, fake-hardware and real-robot verification sequence.
-- [UR5e setup](1_UR5e_setup.md): operating-system, driver, network, and robot setup.
-- [Python sockets architecture](3_Python_Sockets_Architecture.md): components, TCP communication, YAML and URScript flow.
-- [ROS 2 architecture](4_ROS2_Architecture.md): nodes, topics, services, actions and sequence execution.
-- [Social robotics project](5_SocialRobotics_Project.md): sessions, responsibilities, safety and deliverables.
+For each motion, record the simulation result, the real-robot result, any
+error or protective stop, and the main difference between the two executions.

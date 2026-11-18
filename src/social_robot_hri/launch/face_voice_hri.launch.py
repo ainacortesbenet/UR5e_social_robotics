@@ -10,6 +10,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
     reference_image = LaunchConfiguration('reference_image')
     camera_index = LaunchConfiguration('camera_index')
+    image_topic = LaunchConfiguration('image_topic')
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -17,6 +18,11 @@ def generate_launch_description():
             description='Absolute path to the authorised-user image',
         ),
         DeclareLaunchArgument('camera_index', default_value='0'),
+        DeclareLaunchArgument(
+            'image_topic',
+            default_value='',
+            description='ROS colour image topic. Leave empty to use camera_index.',
+        ),
         Node(
             package='social_robot_hri',
             executable='voice_node',
@@ -38,6 +44,7 @@ def generate_launch_description():
             parameters=[{
                 'reference_image': reference_image,
                 'camera_index': ParameterValue(camera_index, value_type=int),
+                'image_topic': ParameterValue(image_topic, value_type=str),
             }],
         ),
     ])

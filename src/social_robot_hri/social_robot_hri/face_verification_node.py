@@ -5,8 +5,11 @@ from pathlib import Path
 
 import cv2
 import face_recognition
+import numpy as np
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSPresetProfiles
+from sensor_msgs.msg import Image
 from std_msgs.msg import String
 
 
@@ -18,7 +21,7 @@ class FaceVerifier:
         self.camera_index = camera_index
         self.tolerance = tolerance
 
-    def verify(self):
+    def verify(self, read_frame=None):
         if not self.reference_image.is_file():
             raise FileNotFoundError(
                 f'Reference image not found: {self.reference_image}'
@@ -29,14 +32,18 @@ class FaceVerifier:
         if not encodings:
             raise RuntimeError('No face found in the reference image.')
 
-        camera = cv2.VideoCapture(self.camera_index)
-        if not camera.isOpened():
-            raise RuntimeError(f'Camera {self.camera_index} is not available.')
+        camera = None
+        if read_frame is None:
+            camera = cv2.VideoCapture(self.camera_index)
+            if not camera.isOpened():
+                camera.release()
+                raise RuntimeError(f'Camera {self.camera_index} is not available.')
+            read_frame = camera.read
 
         print('[FACE] Look at the camera. Press Q to cancel.')
         try:
-            while True:
-                ok, frame = camera.read()
+            while rclpy.ok():
+                ok, frame = read_frame()
                 if not ok:
                     continue
 
@@ -59,8 +66,10 @@ class FaceVerifier:
                     return True
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     return False
+            return False
         finally:
-            camera.release()
+            if camera is not None:
+                camera.release()
             cv2.destroyAllWindows()
 
 
@@ -69,10 +78,12 @@ class FaceVerificationNode(Node):
         super().__init__('face_verification_node')
         self.declare_parameter('reference_image', '')
         self.declare_parameter('camera_index', 0)
+        self.declare_parameter('image_topic', '')
         self.declare_parameter('tolerance', 0.6)
         self.declare_parameter('input_topic', '/social_behavior/request')
         self.declare_parameter('output_topic', '/social_behavior')
 
+    def verify_user(self):
         reference_image = str(self.get_parameter('reference_image').value)
         if not reference_image:
             raise RuntimeError('Set the reference_image ROS parameter.')
@@ -82,7 +93,20 @@ class FaceVerificationNode(Node):
             camera_index=int(self.get_parameter('camera_index').value),
             tolerance=float(self.get_parameter('tolerance').value),
         )
-        self.authorised = verifier.verify()
+        image_topic = self.get_parameter('image_topic').value
+        if image_topic:
+            self.latest_image = None
+            qos = QoSPresetProfiles.SENSOR_DATA.value
+            qos.depth = 1
+            subscription = self.create_subscription(Image, image_topic, self.image_callback, qos)
+            self.get_logger().info(f'Waiting for colour images on {image_topic}')
+            try:
+                self.authorised = verifier.verify(self.read_topic_frame)
+            finally:
+                self.destroy_subscription(subscription)
+        else:
+            self.authorised = verifier.verify()
+
         if not self.authorised:
             self.get_logger().error('Face verification failed. Requests are blocked.')
         else:
@@ -98,6 +122,31 @@ class FaceVerificationNode(Node):
             10,
         )
 
+    def image_callback(self, msg):
+        self.latest_image = msg
+
+    def read_topic_frame(self):
+        rclpy.spin_once(self, timeout_sec=0.25)
+        msg = self.latest_image
+        self.latest_image = None
+        if msg is None:
+            return False, None
+        if msg.encoding not in ('rgb8', 'bgr8'):
+            raise RuntimeError(f'Unsupported colour image encoding: {msg.encoding}')
+
+        row_bytes = msg.width * 3
+        if not msg.width or not msg.height or msg.step < row_bytes:
+            raise RuntimeError('Invalid colour image dimensions or row stride.')
+        if len(msg.data) != msg.height * msg.step:
+            raise RuntimeError('Invalid colour image buffer size.')
+
+        # ROS image rows can contain padding after the last pixel.
+        rows = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.step)
+        frame = rows[:, :row_bytes].reshape(msg.height, msg.width, 3)
+        if msg.encoding == 'rgb8':
+            return True, cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        return True, frame.copy()
+
     def request_callback(self, msg):
         if not self.authorised:
             self.get_logger().warn('Rejected behavior request: user not authorised.')
@@ -111,13 +160,17 @@ def main(args=None):
     node = None
     try:
         node = FaceVerificationNode()
-        rclpy.spin(node)
+        node.verify_user()
+        if rclpy.ok():
+            rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
     except (RuntimeError, FileNotFoundError) as error:
         print(f'[FACE] {error}')
     finally:
         if node is not None:
             node.destroy_node()
-        rclpy.shutdown()
+        rclpy.try_shutdown()
 
 
 if __name__ == '__main__':
