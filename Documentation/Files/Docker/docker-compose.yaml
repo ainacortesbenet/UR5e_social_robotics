@@ -33,7 +33,7 @@ services:
       # X11 display for RViz/Gazebo
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       # Repository mounted inside the container
-      - /home/biorob/Desktop/UR5e_social_robotics:/root/UR5e_social_robotics
+      - ../../..:/root/UR5e_social_robotics
 
     entrypoint: /entrypoint_pc.sh
     command: sleep infinity
